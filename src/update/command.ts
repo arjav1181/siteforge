@@ -19,7 +19,7 @@ function runCmd(cmd: string, args: string[]): Promise<number> {
 
 export async function runUpdate(): Promise<void> {
   log.step(`Current: siteforge v${VERSION}`);
-  const pkg = "@arjav1181/siteforge@latest";
+  const pkg = "site-forge@latest";
   if (await commandExists("npm")) {
     log.step(`Running: npm install -g ${pkg}`);
     const code = await runCmd("npm", ["install", "-g", pkg]);

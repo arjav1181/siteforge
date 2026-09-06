@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Package renamed `@arjav1181/siteforge` → `site-forge` (plain name, same `siteforge` binary)
+
 ### Added
 - SiteForge toolkit: `init` wizard (default, bare run), `add` (12 sections),
   `fx` (9 effects), `3d` (5 Three.js presets incl. GLB viewer), `record`,

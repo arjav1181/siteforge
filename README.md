@@ -1,7 +1,7 @@
 # SiteForge
 
 [![CI](https://github.com/arjav1181/siteforge/actions/workflows/ci/badge.svg)](https://github.com/arjav1181/siteforge/actions/workflows/ci)
-[![npm version](https://img.shields.io/npm/v/@arjav1181/siteforge.svg)](https://www.npmjs.com/package/@arjav1181/siteforge)
+[![npm version](https://img.shields.io/npm/v/site-forge.svg)](https://www.npmjs.com/package/site-forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Forge **killer interactive sites** from your terminal. One CLI — video
@@ -9,7 +9,7 @@ backgrounds, drop-in sections, FX pack, 3D scenes, demo recorder, site audit,
 ship helper. Output is Next.js + Tailwind you own completely.
 
 ```bash
-npm i -g @arjav1181/siteforge
+npm i -g site-forge
 # or
 curl -fsSL https://raw.githubusercontent.com/arjav1181/siteforge/main/install.sh | bash
 ```

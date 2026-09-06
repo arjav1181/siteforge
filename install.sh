@@ -4,7 +4,7 @@
 set -euo pipefail
 
 VERSION="latest"
-PKG="@arjav1181/siteforge"
+PKG="site-forge"
 REPO="arjav1181/siteforge"
 
 info()  { printf '\033[0;36m▸\033[0m %s\n' "$1"; }

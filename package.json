@@ -1,6 +1,6 @@
 {
   "name": "@aj1181/site-forge",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "description": "Forge killer interactive sites \u2014 video backgrounds, sections, FX, demo recorder, audit, ship. One CLI.",
   "type": "module",
   "license": "MIT",
@@ -25,6 +25,7 @@
   "files": [
     "dist",
     "skills",
+    "scripts",
     "README.md",
     "LICENSE"
   ],

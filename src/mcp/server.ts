@@ -7,6 +7,7 @@ import { runThree } from "../three/command.js";
 import { runAudit } from "../audit/command.js";
 import { runSkills, AGENTS } from "../skills/command.js";
 import { runDoctor } from "../doctor/command.js";
+import { runShot } from "../shot/command.js";
 import { setJsonMode } from "../log.js";
 import { VERSION } from "../version.js";
 
@@ -101,7 +102,24 @@ export function buildServer(): McpServer {
         for (const a of list) {
           if (!AGENTS.includes(a)) throw new Error(`Unknown agent "${a}". Choose from: ${AGENTS.join(", ")}`);
         }
-        return text(await runSkills({ action: "install", agents: list, global: global ?? false }));
+        return text(await runSkills({ action: "install", agents: list, global: global ?? false, oss: false }));
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.tool(
+    "take_screenshot",
+    "Screenshot any page to a PNG file. Needs system Chrome.",
+    {
+      url: z.string().describe("http(s):// or file:// URL"),
+      out: z.string().describe("Output PNG path"),
+      fullPage: z.boolean().optional().describe("Capture the full scrollable page"),
+    },
+    async ({ url, out, fullPage }) => {
+      try {
+        return text(await runShot({ url, out, width: 1280, height: 800, full: fullPage ?? false, wait: 1200, browser: null }));
       } catch (e) {
         return fail(e);
       }

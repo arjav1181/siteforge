@@ -1,0 +1,6 @@
+[submodule "skills-oss/anthropics-skills"]
+	path = skills-oss/anthropics-skills
+	url = https://github.com/anthropics/skills.git
+[submodule "skills-oss/superpowers"]
+	path = skills-oss/superpowers
+	url = https://github.com/obra/superpowers.git

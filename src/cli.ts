@@ -9,6 +9,9 @@ import { parseShipArgs, runShip, SHIP_HELP } from "./ship/command.js";
 import { parseSkillsArgs, runSkills, SKILLS_HELP } from "./skills/command.js";
 import { parseAssetsArgs, runAssets, ASSETS_HELP } from "./assets/command.js";
 import { parseDemoArgs, runDemo, DEMO_HELP } from "./demo/command.js";
+import { parseRunArgs, runScriptCmd, RUN_HELP } from "./scripts/command.js";
+import { parseServeArgs, runServe, SERVE_HELP } from "./serve/command.js";
+import { parseShotArgs, runShot, SHOT_HELP } from "./shot/command.js";
 import { parseAgentsArgs, runAgents, AGENTS_HELP } from "./agents/command.js";
 import { renderCompletion, parseCompletionArgs } from "./complete.js";
 import { runMcp } from "./mcp/server.js";
@@ -33,6 +36,8 @@ Commands:
   3d        Drop a Three.js hero scene into your site
   record    Capture a dressed-up demo video of any page
   audit     Health-check a page: overflow, meta, alt, console, weight
+  shot      Screenshot any page to PNG
+  serve     Static file server for previews
   ship      Commit, create the GitHub repo, and push
   skills    List/install agent skills for this toolkit
   assets    Batch-compress images in a directory
@@ -121,6 +126,18 @@ async function main(): Promise<void> {
       case "record":
         if (wantsHelp) { process.stdout.write(RECORD_HELP); return; }
         emit(await runRecord(parseRecordArgs(args)));
+        return;
+      case "shot":
+        if (wantsHelp) { process.stdout.write(SHOT_HELP); return; }
+        emit(await runShot(parseShotArgs(args)));
+        return;
+      case "serve":
+        if (wantsHelp) { process.stdout.write(SERVE_HELP); return; }
+        await runServe(parseServeArgs(args));
+        return;
+      case "run":
+        if (wantsHelp) { process.stdout.write(RUN_HELP); return; }
+        emit(await runScriptCmd(parseRunArgs(args)));
         return;
       case "audit":
         if (wantsHelp) { process.stdout.write(AUDIT_HELP); return; }

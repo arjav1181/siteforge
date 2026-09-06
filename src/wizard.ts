@@ -62,6 +62,9 @@ const MENU = `
     7) Install skills  agent skills for this toolkit
     8) Doctor          check this machine
     9) Quick demo      sample site, no files needed
+    10) Serve folder   static preview server
+    11) Screenshot     page → PNG
+    12) Run script     everyday helpers (bigfiles, loc…)
     0) Exit
 `;
 
@@ -112,7 +115,8 @@ export async function runWizard(ask: Ask): Promise<void> {
         break;
       case "7": {
         const picked = await pickList(ask, "Agents:", AGENTS);
-        await runSkills({ action: "install", agents: picked.length ? picked : AGENTS, global: (await ask("  Global? (y/N)", "n")).toLowerCase().startsWith("y") });
+        const oss = (await ask("  Include OSS collections? (y/N)", "n")).toLowerCase().startsWith("y");
+        await runSkills({ action: "install", agents: picked.length ? picked : AGENTS, oss, global: (await ask("  Global? (y/N)", "n")).toLowerCase().startsWith("y") });
         break;
       }
       case "8":
@@ -121,6 +125,29 @@ export async function runWizard(ask: Ask): Promise<void> {
       case "9": {
         const { runDemo } = await import("./demo/command.js");
         await runDemo({ dir: "./siteforge-demo", fps: 24 });
+        break;
+      }
+      case "10": {
+        const { runServe } = await import("./serve/command.js");
+        const dir = await ask("  Directory", "public");
+        const port = Number(await ask("  Port", "8000"));
+        await runServe({ dir, port, spa: false });
+        break;
+      }
+      case "11": {
+        const { runShot } = await import("./shot/command.js");
+        const url = await ask("  URL", "http://localhost:3000");
+        const out = await ask("  Output PNG", "shot.png");
+        await runShot({ url, out, width: 1280, height: 800, full: false, wait: 1200, browser: null });
+        break;
+      }
+      case "12": {
+        const { listScripts, runScriptCmd } = await import("./scripts/command.js");
+        log.dim(`  Scripts: ${listScripts().join(", ")}`);
+        const name = await ask("  Script", "");
+        if (!name) break;
+        const extra = await ask("  Args (space-separated)", "");
+        await runScriptCmd({ name, list: false, args: extra ? extra.split(/\s+/) : [] });
         break;
       }
       case "0":

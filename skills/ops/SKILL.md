@@ -6,7 +6,7 @@ description: Toolkit maintenance via `siteforge skills|assets|doctor|update|agen
 # siteforge ops
 
 ```bash
-siteforge skills install [--agent claude,cursor,opencode,codex,aider,pi] [--global]
+siteforge skills install [--agent claude,cursor,opencode,codex,aider,pi] [--global] [--oss]
 siteforge assets public --dry-run        # then without --dry-run to apply
 siteforge doctor                          # env report per command
 siteforge update                          # latest published version
@@ -15,7 +15,8 @@ siteforge agents init                     # repo conventions for agents
 siteforge mcp                             # stdio tools for agents
 ```
 
-Skills install as SKILL.md per agent convention (Cursor gets `.mdc` rule
+Skills install as whole folders per agent convention (references ride along).
+Add --oss for the submodule collections (anthropics, superpowers). (Cursor gets `.mdc` rule
 files); paths print as they land — move them if an agent changes layout.
 `assets` rewrites jpg/png/webp in place (default q80, max-width 1920) —
 commit first, preview with `--dry-run`. `doctor` is the first thing to run

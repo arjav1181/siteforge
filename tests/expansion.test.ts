@@ -91,7 +91,7 @@ describe("skills installer", () => {
   });
   it("parses agent filter + global", () => {
     expect(parseSkillsArgs(["install", "--agent", "claude,cursor", "--global"])).toEqual({
-      action: "install", agents: ["claude", "cursor"], global: true,
+      action: "install", agents: ["claude", "cursor"], global: true, oss: false,
     });
     expect(() => parseSkillsArgs(["install", "--agent", "nope"])).toThrow();
   });

@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "id": "anthropics",
+      "repo": "anthropics/skills",
+      "subdir": "skills-oss/anthropics-skills",
+      "skillsPath": "skills",
+      "ref": "main",
+      "license": "Mixed: Apache 2.0 (examples) + source-available (docx/pdf/pptx/xlsx). See upstream README + THIRD_PARTY_NOTICES.md.",
+      "note": "Official Anthropic reference skills."
+    },
+    {
+      "id": "superpowers",
+      "repo": "obra/superpowers",
+      "subdir": "skills-oss/superpowers",
+      "skillsPath": "skills",
+      "ref": "main",
+      "license": "MIT",
+      "note": "Battle-tested dev-workflow skills (debugging, TDD, planning, reviews)."
+    }
+  ]
+}

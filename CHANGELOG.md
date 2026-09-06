@@ -1,6 +1,22 @@
 # Changelog
 
-## [Unreleased]
+All notable changes to this project are documented here. Format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.4.0] — 2026-09-06
+
+### Added
+- Universal agent track: OSS skill submodules (`anthropics/skills`,
+  `obra/superpowers`) — recursive discovery, whole-folder copy, network
+  fallback (GitHub tree API + tarballs) so npm installs get them too
+- `siteforge run`: bundled everyday scripts (bigfiles, loc, todo-sweep,
+  json-pretty, md-toc, port-kill with verify-before-kill safety)
+- `siteforge serve` static preview server, `siteforge shot` screenshots
+  (+ `take_screenshot` MCP tool)
+- Skills: serve, shot, run (+ enriched ops skill)
+- Docs: oss-skills.md; README universal-toolkit section
+
+## [1.2.0] — 2026-09-06
 
 ### Added
 - Content-aware `init`: headline/subline/email/GitHub baked in, sections
@@ -10,6 +26,8 @@
   `marquee`, `preloader`, `magnetic`
 - Toolkit is site-kind agnostic: landing pages, portfolios, campaign sites
   (messaging + template de-portfolioed)
+
+## [1.1.0] — 2026-09-06
 
 ### Added
 - Agent-native `--json` output on every command (logs to stderr, result JSON on stdout)
@@ -23,27 +41,18 @@
 ### Changed
 - Package renamed `@arjav1181/siteforge` → `site-forge` (plain name, same `siteforge` binary)
 
-### Added
-- SiteForge toolkit: `init` wizard (default, bare run), `add` (12 sections),
-  `fx` (9 effects), `3d` (5 Three.js presets incl. GLB viewer), `record`,
-  `audit`, `ship`, `skills` installer (6 agents), `assets`, `doctor`, `update`
-- Agent skills for every command
-
-All notable changes to this project are documented here. Format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-
 ## [1.0.0] — 2026-09-06
 
-First stable release — full Node.js rewrite of the original bash script.
+First stable release — full Node.js rewrite of the original bash script,
+expanded into the SiteForge toolkit.
 
 ### Added
-- Node.js CLI: analyze → extract → optimize → scaffold → install → build
-- Auto frame-rate detection (uses source fps unless `--fps` is passed)
-- Lanczos upscaling with aspect-ratio guard + `--no-upscale`
-- 4:4:4 chroma pipeline (no subsampling artifacts)
-- Live ffmpeg progress bars, colored step output
-- `--quality`, `--pm`, `--name`, `--no-install`, `--no-build` flags
+- `video`: analyze → extract → optimize → scaffold → install → build
+  (auto fps, lanczos upscale guard, 4:4:4 chroma, progress bars)
+- Toolkit: `init` wizard, `add` (sections), `fx` (effects), `3d` (Three.js
+  presets), `record`, `audit`, `ship`, `skills` installer (6 agents),
+  `assets`, `doctor`, `update`
+- Agent skills for every command
 - `install.sh` one-line curl installer
-- Agent skills: `video-to-site` and `customize-site`
 - Docs: usage, how-it-works, customizing
 - Vitest suite (unit + end-to-end on synthetic video) and GitHub Actions CI

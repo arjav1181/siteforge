@@ -31,7 +31,10 @@ with no args for the interactive wizard, `siteforge doctor` to check your box.
 | `siteforge record <url> --out demo.mp4` | 30fps demo video + poster of any page | [docs/record.md](docs/record.md) |
 | `siteforge audit <url>` | Overflow culprits, meta/alt/console/weight | [docs/audit.md](docs/audit.md) |
 | `siteforge ship` | Commit → GitHub repo → push | [docs/ship.md](docs/ship.md) |
-| `siteforge skills install` | Agent skills for Claude/Cursor/OpenCode/Codex/Aider/Pi | [docs/ops.md](docs/ops.md) |
+| `siteforge skills install --oss` | 9 handmade + 33 OSS skills (submodules) for Claude/Cursor/OpenCode/Codex/Aider/Pi | [docs/ops.md](docs/ops.md) |
+| `siteforge run bigfiles` | Everyday scripts: bigfiles, loc, todo-sweep, json-pretty, md-toc, port-kill | [docs/ops.md](docs/ops.md) |
+| `siteforge serve public` | Static preview server | [docs/ops.md](docs/ops.md) |
+| `siteforge shot <url> --out s.png` | Page screenshots | [docs/ops.md](docs/ops.md) |
 | `siteforge agents init` | Detect stack, write AGENTS.md conventions | [docs/agents.md](docs/agents.md) |
 | `siteforge mcp` | MCP server: tools for agents (stdio) | [docs/mcp.md](docs/mcp.md) |
 | `siteforge completion bash` | Shell tab-completion | [docs/agents.md](docs/agents.md) |
@@ -51,6 +54,13 @@ siteforge ship --repo my-site
 <video src="assets/demo.mp4" width="100%" autoplay muted loop playsinline></video>
 
 *Above: a real `siteforge video` run — terminal to scroll-driven site.*
+
+## Universal agent toolkit
+
+Two tracks: **make killer sites** (everything above) and **agent superpowers
+for all kinds of work** — 42 skills (9 handmade + OSS submodules, see
+[docs/oss-skills.md](docs/oss-skills.md)), runnable scripts, MCP server,
+AGENTS.md generator, completions.
 
 ## For AI agents
 

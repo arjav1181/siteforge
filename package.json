@@ -1,0 +1,38 @@
+{
+  "name": "@arjav1181/siteforge",
+  "version": "1.0.0",
+  "description": "Forge killer interactive sites — video backgrounds, sections, FX, demo recorder, audit, ship. One CLI.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Arjav",
+  "homepage": "https://github.com/arjav1181/siteforge",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arjav1181/siteforge.git"
+  },
+  "keywords": ["sites", "portfolio", "nextjs", "scroll-animation", "cli", "toolkit", "landing-page"],
+  "bin": {
+    "siteforge": "./dist/cli.js"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "playwright-core": "^1.55.0",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.20.5",
+    "typescript": "^5",
+    "vitest": "^3"
+  }
+}

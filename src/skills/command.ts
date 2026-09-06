@@ -116,15 +116,16 @@ export function parseSkillsArgs(argv: string[]): { action: string | null; agents
   return { action, agents, global };
 }
 
-export async function runSkills(o: { action: string | null; agents: string[]; global: boolean }): Promise<void> {
+export async function runSkills(o: { action: string | null; agents: string[]; global: boolean }): Promise<{ installed: string[] } | undefined> {
   const names = listBundledSkills();
   if (o.action === "list" || !o.action) {
     log.step("Bundled skills:");
     for (const n of names) log.dim(`  - ${n}`);
     log.blank();
     log.dim("  Install: siteforge skills install [--agent claude] [--global]");
-    return;
+    return undefined;
   }
+  const installed: string[] = [];
   for (const agent of o.agents) {
     const t = agentTargets(agent);
     const base = o.global ? t.global : t.project;
@@ -136,8 +137,10 @@ export async function runSkills(o: { action: string | null; agents: string[]; gl
       const dest = path.join(destDir, t.file(name));
       writeFileSync(dest, src);
       log.ok(`${agent}: ${dest}`);
+      installed.push(dest);
     }
   }
   log.blank();
   log.dim("  Paths follow each agent's conventional layout — move files if yours differs.");
+  return { installed };
 }

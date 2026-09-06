@@ -52,23 +52,30 @@ export function parseAddArgs(argv: string[]): { section: string | null; dir: str
   return { section, dir, list };
 }
 
-export async function runAdd(opts: { section: string | null; dir: string; list: boolean }): Promise<void> {
+export interface AddResult {
+  files: string[];
+}
+
+export async function runAdd(opts: { section: string | null; dir: string; list: boolean }): Promise<AddResult | undefined> {
   if (opts.list || !opts.section) {
     process.stdout.write(ADD_HELP);
-    return;
+    return undefined;
   }
   const def = SECTIONS[opts.section];
   if (!def) throw new Error(`Unknown section "${opts.section}". Run: siteforge add --list`);
   mkdirSync(opts.dir, { recursive: true });
+  const written: string[] = [];
 
   const compPath = path.join(opts.dir, def.file);
   writeFileSync(compPath, def.render());
   log.ok(`Wrote ${compPath}`);
+  written.push(compPath);
 
   const cssPath = path.join(opts.dir, "siteforge.css");
   if (!existsSync(cssPath)) {
     writeFileSync(cssPath, renderSharedCss());
     log.ok(`Wrote ${cssPath} (shared reveal/buttons/cards)`);
+    written.push(cssPath);
   }
 
   const comp = def.file.replace(/\.tsx$/, "");
@@ -81,4 +88,5 @@ export async function runAdd(opts: { section: string | null; dir: string; list: 
   log.dim("  Reveal observer (needs useEffect import):");
   for (const line of OBSERVER_SNIPPET.split("\n")) log.dim(`  ${line}`);
   log.blank();
+  return { files: written };
 }

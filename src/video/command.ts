@@ -104,7 +104,17 @@ export function parseVideoArgs(argv: string[]): VideoOptions {
   return opts;
 }
 
-export async function runVideo(opts: VideoOptions): Promise<void> {
+export interface VideoResult {
+  outDir: string;
+  projectName: string;
+  frames: number;
+  bytes: number;
+  fps: number;
+  width: number;
+  height: number;
+}
+
+export async function runVideo(opts: VideoOptions): Promise<VideoResult> {
   if (!existsSync(opts.video)) throw new Error(`Video file not found: ${opts.video}`);
   for (const cmd of ["ffmpeg", "ffprobe"]) {
     if (!(await commandExists(cmd))) throw new Error(`Missing dependency: ${cmd} (install ffmpeg)`);
@@ -169,4 +179,5 @@ export async function runVideo(opts: VideoOptions): Promise<void> {
   log.dim(`  Run:      cd ${outDir} && ${pm ?? "bun"} run dev`);
   log.dim(`  Add sections: siteforge add --help`);
   log.blank();
+  return { outDir, projectName, frames: extracted, bytes: totalBytes, fps, width: size.width, height: size.height };
 }

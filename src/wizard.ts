@@ -103,7 +103,7 @@ export async function runWizard(ask: Ask): Promise<void> {
       }
       case "5": {
         const url = await ask("  URL", "http://localhost:3000");
-        const clean = await runAudit({ url, widths: [375, 768, 1440], budgetKb: 500, browser: null });
+        const { clean } = await runAudit({ url, widths: [375, 768, 1440], budgetKb: 500, browser: null, fix: false });
         if (!clean) log.warn("Fix the errors above, then re-run audit.");
         break;
       }

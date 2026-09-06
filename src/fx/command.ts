@@ -43,16 +43,21 @@ export function parseFxArgs(argv: string[]): { effect: string | null; dir: strin
   return { effect, dir, list, opts };
 }
 
-export async function runFx(o: { effect: string | null; dir: string; list: boolean; opts: Record<string, string> }): Promise<void> {
+export interface FxResult {
+  files: string[];
+  printed: boolean;
+}
+
+export async function runFx(o: { effect: string | null; dir: string; list: boolean; opts: Record<string, string> }): Promise<FxResult | undefined> {
   if (o.list || !o.effect) {
     process.stdout.write(FX_HELP);
-    return;
+    return undefined;
   }
   const def = FX[o.effect];
   if (!def) throw new Error(`Unknown effect "${o.effect}". Run: siteforge fx --list`);
   if (def.file === null) {
     process.stdout.write(def.render(o.opts));
-    return;
+    return { files: [], printed: true };
   }
   mkdirSync(o.dir, { recursive: true });
   const target = path.join(o.dir, def.file);
@@ -69,4 +74,5 @@ export async function runFx(o: { effect: string | null; dir: string; list: boole
     log.dim("  Next.js serves src/app/icon.svg as the favicon automatically.");
     log.dim("  Delete src/app/favicon.ico if it still exists.");
   }
+  return { files: [target], printed: false };
 }

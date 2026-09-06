@@ -1,6 +1,6 @@
 ---
 name: siteforge-3d
-description: Drop Three.js hero scenes (particle starfield, wireframe terrain, floating shapes, shader orb, GLB model viewer) into a site with `siteforge 3d`. Use for 3D backgrounds and interactive 3D heroes.
+description: Add Three.js 3D hero scenes via `siteforge 3d`: particle starfield, wireframe terrain, floating chrome shapes, GLSL gradient orb, GLB/GLTF model viewer with orbit + scroll spin. Use for 3D backgrounds, interactive 3D heroes, showing a 3D model on a site.
 ---
 
 # siteforge 3d
@@ -27,3 +27,9 @@ import ParticleHero from "./components/ParticleHero";
 auto-rotate + drag orbit + full scroll spin. All presets cap DPR at 1.5,
 dispose on unmount, and fade/drift with scroll. Respect prefers-reduced-motion
 for users who need stillness — gate the section behind the media query.
+
+## Examples
+
+- "Starfield hero" → `siteforge 3d particle`, then `npm i three @types/three`
+- "Show my .glb on the landing page" → `siteforge 3d model`, drop file in `public/models/`
+- Full-bleed pattern: relative section + absolute scene + `relative z-10` content

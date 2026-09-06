@@ -45,10 +45,10 @@ export function parseThreeArgs(argv: string[]): { preset: string | null; dir: st
   return { preset, dir, list };
 }
 
-export async function runThree(o: { preset: string | null; dir: string; list: boolean }): Promise<void> {
+export async function runThree(o: { preset: string | null; dir: string; list: boolean }): Promise<{ files: string[] } | undefined> {
   if (o.list || !o.preset) {
     process.stdout.write(THREE_HELP);
-    return;
+    return undefined;
   }
   const def = PRESETS[o.preset];
   if (!def) throw new Error(`Unknown preset "${o.preset}". Run: siteforge 3d --list`);
@@ -61,4 +61,5 @@ export async function runThree(o: { preset: string | null; dir: string; list: bo
   log.dim("  Install three:  npm install three @types/three");
   log.dim(`  Import:  import ${comp} from "./components/${comp}";`);
   log.blank();
+  return { files: [target] };
 }

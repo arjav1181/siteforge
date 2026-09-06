@@ -12,7 +12,7 @@ Usage:
   siteforge doctor
 `;
 
-interface Check {
+export interface DoctorCheck {
   name: string;
   need: string;
   ok: boolean;
@@ -28,8 +28,8 @@ async function binVersion(cmd: string, args: string[]): Promise<string | null> {
   }
 }
 
-export async function runDoctor(): Promise<void> {
-  const checks: Check[] = [];
+export async function runDoctor(): Promise<{ checks: DoctorCheck[] }> {
+  const checks: DoctorCheck[] = [];
 
   const nodeV = await binVersion("node", ["-v"]);
   const nodeMajor = nodeV ? Number(nodeV.replace("v", "").split(".")[0]) : 0;
@@ -87,8 +87,9 @@ export async function runDoctor(): Promise<void> {
   log.blank();
   for (const c of checks) {
     const mark = c.ok ? "✓" : "✗";
-    process.stdout.write(`  ${c.ok ? "\x1b[32m" : "\x1b[31m"}${mark}\x1b[0m ${c.name.padEnd(18)} ${c.detail}   \x1b[2m[${c.need}]\x1b[0m\n`);
+    log.raw(`  ${c.ok ? "\x1b[32m" : "\x1b[31m"}${mark}\x1b[0m ${c.name.padEnd(18)} ${c.detail}   \x1b[2m[${c.need}]\x1b[0m\n`);
   }
   log.blank();
   if (!checks[0].ok) throw new Error("Node.js 18+ is required for everything else.");
+  return { checks };
 }

@@ -14,6 +14,7 @@ Options:
   --widths <list>     Comma-separated viewport widths (default: 375,768,1440)
   --budget <kb>       Flag assets heavier than this (default: 500)
   --browser <path>    Chrome/Chromium binary (default: auto-detect)
+  --fix               Auto-fix lang/alt/meta on a LOCAL html file (backs up .bak)
 
 Exit code is 1 when horizontal overflow is found, 0 otherwise.
 Warnings (meta/alt/console/weight) never fail the run.
@@ -28,11 +29,33 @@ export interface AuditOptions {
   widths: number[];
   budgetKb: number;
   browser: string | null;
+  fix: boolean;
+}
+
+/** Targeted, safe auto-fixes for local HTML files. Returns fixed HTML + log. */
+export function fixHtml(html: string): { html: string; changes: string[] } {
+  const changes: string[] = [];
+  let out = html;
+  if (/<html(?![^>]*\blang=)/i.test(out)) {
+    out = out.replace(/<html/i, '<html lang="en"');
+    changes.push('added lang="en" to <html>');
+  }
+  if (!/<meta[^>]*name=["']description["']/i.test(out) && /<head[^>]*>/i.test(out)) {
+    out = out.replace(/<head[^>]*>/i, (m) => `${m}\n  <meta name="description" content="TODO: describe this page.">`);
+    changes.push("added placeholder meta description");
+  }
+  out = out.replace(/<img(?![^>]*\balt=)[^>]*>/gi, (tag) => {
+    const src = /src=["']([^"']+)["']/.exec(tag)?.[1] ?? "image";
+    const alt = src.split("/").pop()?.replace(/\.[^.]*$/, "").replace(/[-_]+/g, " ") || "image";
+    changes.push(`added alt="${alt}"`);
+    return tag.replace(/<img/i, `<img alt="${alt}"`);
+  });
+  return { html: out, changes };
 }
 
 export function parseAuditArgs(argv: string[]): AuditOptions {
   const positional: string[] = [];
-  const o: AuditOptions = { url: "", widths: [375, 768, 1440], budgetKb: 500, browser: null };
+  const o: AuditOptions = { url: "", widths: [375, 768, 1440], budgetKb: 500, browser: null, fix: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const next = () => {
@@ -56,6 +79,7 @@ export function parseAuditArgs(argv: string[]): AuditOptions {
         break;
       }
       case "--browser": o.browser = next(); break;
+      case "--fix": o.fix = true; break;
       default:
         if (a.startsWith("-")) throw new Error(`Unknown option for audit: ${a}`);
         positional.push(a);
@@ -90,7 +114,31 @@ export function findCulprits(
     .slice(0, 10);
 }
 
-export async function runAudit(o: AuditOptions): Promise<boolean> {
+export interface AuditResult {
+  clean: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+export async function runAudit(o: AuditOptions): Promise<AuditResult> {
+  let url = o.url;
+  if (o.fix) {
+    const { existsSync, readFileSync, writeFileSync, copyFileSync } = await import("node:fs");
+    const file = url.startsWith("file://") ? url.slice("file://".length) : url;
+    if (!existsSync(file) || !/\.html?$/i.test(file)) {
+      throw new Error("--fix only works on a local .html file.");
+    }
+    const src = readFileSync(file, "utf8");
+    const { html, changes } = fixHtml(src);
+    if (changes.length === 0) {
+      log.ok("Nothing to auto-fix.");
+    } else {
+      copyFileSync(file, file + ".bak");
+      writeFileSync(file, html);
+      for (const c of changes) log.ok(`fixed: ${c} (backup: ${file}.bak)`);
+    }
+    url = "file://" + file;
+  }
   const exe = await findBrowser(o.browser ?? undefined);
   const browser = await launchBrowser(exe);
   const errors: string[] = [];
@@ -107,9 +155,9 @@ export async function runAudit(o: AuditOptions): Promise<boolean> {
 
       log.step(`Auditing @ ${width}px...`);
       try {
-        await page.goto(o.url, { waitUntil: "networkidle", timeout: 30000 });
+        await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
       } catch {
-        await page.goto(o.url, { waitUntil: "load", timeout: 30000 });
+        await page.goto(url, { waitUntil: "load", timeout: 30000 });
       }
       await page.waitForTimeout(1200);
 
@@ -178,5 +226,5 @@ export async function runAudit(o: AuditOptions): Promise<boolean> {
   for (const w of warnings) log.warn(w);
   if (clean && warnings.length === 0) log.ok("All clean.");
   else if (clean) log.ok("No overflow — warnings above are advisory.");
-  return clean;
+  return { clean, errors, warnings };
 }

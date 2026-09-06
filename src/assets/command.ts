@@ -84,11 +84,18 @@ function collect(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-export async function runAssets(o: AssetsOptions): Promise<void> {
+export interface AssetsResult {
+  files: number;
+  changed: number;
+  before: number;
+  after: number;
+}
+
+export async function runAssets(o: AssetsOptions): Promise<AssetsResult> {
   const files = collect(path.resolve(o.dir)).sort();
   if (files.length === 0) {
     log.warn("No images found.");
-    return;
+    return { files: 0, changed: 0, before: 0, after: 0 };
   }
   let before = 0, after = 0, changed = 0;
   for (const file of files) {
@@ -125,4 +132,5 @@ export async function runAssets(o: AssetsOptions): Promise<void> {
   }
   log.blank();
   log.ok(`${changed}/${files.length} optimized: ${formatBytes(before)} → ${formatBytes(after)}`);
+  return { files: files.length, changed, before, after };
 }

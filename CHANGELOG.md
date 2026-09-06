@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+- Agent-native `--json` output on every command (logs to stderr, result JSON on stdout)
+- `siteforge mcp`: stdio MCP server (add_section, add_effect, add_3d_scene, audit_page, install_skills, check_env)
+- `siteforge agents`: stack detection + AGENTS.md generator
+- `siteforge completion`: bash/zsh/fish tab-completion
+- `audit --fix`: auto-repairs lang/alt/meta on local HTML (with .bak)
+- `update --check`: non-mutating update check
+- Enriched skill frontmatter (keyword routing) + examples in all 9 skills
+
 ### Changed
 - Package renamed `@arjav1181/siteforge` → `site-forge` (plain name, same `siteforge` binary)
 

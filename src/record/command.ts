@@ -106,7 +106,7 @@ function ffmpegEncode(raw: string, out: string, crf: number): Promise<void> {
   });
 }
 
-export async function runRecord(o: RecordOptions): Promise<void> {
+export async function runRecord(o: RecordOptions): Promise<{ out: string; poster: string }> {
   if (!(await commandExists("ffmpeg"))) throw new Error("Missing dependency: ffmpeg");
   const exe = await findBrowser(o.browser ?? undefined);
   const rawDir = mkdtempSync(path.join(tmpdir(), "siteforge-record-"));
@@ -148,4 +148,5 @@ export async function runRecord(o: RecordOptions): Promise<void> {
   await execFileAsync("ffmpeg", ["-y", "-v", "warning", "-ss", "1", "-i", o.out, "-frames:v", "1", "-q:v", "3", poster]);
   if (!o.keepRaw) rmSync(rawDir, { recursive: true, force: true });
   log.ok(`Wrote ${o.out} + ${poster}`);
+  return { out: o.out, poster };
 }

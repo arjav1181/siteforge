@@ -1,6 +1,6 @@
 ---
 name: siteforge-video
-description: Turn any video into a scroll-driven Next.js site with `siteforge video`. Use for video backgrounds that scrub with scroll, scroll-driven frame animation, or scaffolding a site from a video file.
+description: Turn any video file into a scroll-driven Next.js + Tailwind portfolio site (video background scrubs with scroll, frame extraction, 4:4:4 chroma, scaffold, build). Use when the user says: video background, scroll video, video portfolio, animate frames on scroll, site from a video, or runs `siteforge video`.
 ---
 
 # siteforge video
@@ -20,3 +20,9 @@ Rules: never re-encode frames with 4:2:0 tools (block artifacts return);
 keep `frame-%04d.jpg` naming; customize via the `siteforge-customize` skill.
 Troubleshooting: ffmpeg errors = check input plays + disk space; aspect
 mismatch = CLI keeps source res (pass explicit dimensions only for ~16:9).
+
+## Examples
+
+- "Make my showreel scrollable" → `siteforge video reel.mp4 site --fps 30`
+- "Light draft, skip installs" → `siteforge video clip.mp4 draft --no-install --no-build`
+- "Phone footage, keep it vertical" → add `--no-upscale`

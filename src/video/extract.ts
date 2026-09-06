@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { buildFilterChain } from "./pipeline.js";
-import { progress } from "../log.js";
+import { progress, log } from "../log.js";
 
 export interface ExtractOptions {
   video: string;
@@ -39,7 +39,7 @@ export function extractFrames(opts: ExtractOptions): Promise<number> {
         bar.done();
         resolve(opts.expectedFrames);
       } else {
-        process.stdout.write("\n");
+        log.raw("\n");
         reject(new Error(`ffmpeg exited with code ${code}`));
       }
     });

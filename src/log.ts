@@ -6,35 +6,49 @@ const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
 const RED = "\x1b[31m";
 
+let jsonMode = false;
+
+/** In JSON mode, all human logs go to stderr; only the result JSON hits stdout. */
+export function setJsonMode(v: boolean): void {
+  jsonMode = v;
+}
+
+const out = () => (jsonMode ? process.stderr : process.stdout);
+
 export const log = {
   step(msg: string) {
-    process.stdout.write(`${CYAN}▸${RESET} ${msg}\n`);
+    out().write(`${CYAN}▸${RESET} ${msg}\n`);
   },
   ok(msg: string) {
-    process.stdout.write(`${GREEN}✓${RESET} ${msg}\n`);
+    out().write(`${GREEN}✓${RESET} ${msg}\n`);
   },
   warn(msg: string) {
-    process.stdout.write(`${YELLOW}⚠${RESET} ${msg}\n`);
+    out().write(`${YELLOW}⚠${RESET} ${msg}\n`);
   },
   err(msg: string) {
     process.stderr.write(`${RED}✗${RESET} ${msg}\n`);
   },
   blank() {
-    process.stdout.write("\n");
+    out().write("\n");
   },
   title(msg: string) {
-    process.stdout.write(`${BOLD}${msg}${RESET}\n`);
+    out().write(`${BOLD}${msg}${RESET}\n`);
   },
   dim(msg: string) {
-    process.stdout.write(`${DIM}${msg}${RESET}\n`);
+    out().write(`${DIM}${msg}${RESET}\n`);
+  },
+  /** Unstyled write, routed like everything else (stderr in JSON mode). */
+  raw(msg: string) {
+    out().write(msg);
   },
 };
 
 /** Single-line progress counter (overwrites itself). Call done() to finish the line. */
 export function progress(total: number, label: string) {
   let current = 0;
+  const stream = () => (jsonMode ? process.stderr : process.stdout);
   const render = () => {
-    process.stdout.write(`\r  ${current}/${total} ${label}`);
+    stream().write(`\r  ${current}/${total} ${label}`);
   };
   return {
     tick(n = 1) {
@@ -48,7 +62,7 @@ export function progress(total: number, label: string) {
     done() {
       current = total;
       render();
-      process.stdout.write("\n");
+      stream().write("\n");
     },
   };
 }

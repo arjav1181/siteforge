@@ -8,11 +8,15 @@ import { parseAuditArgs, runAudit, AUDIT_HELP } from "./audit/command.js";
 import { parseShipArgs, runShip, SHIP_HELP } from "./ship/command.js";
 import { parseSkillsArgs, runSkills, SKILLS_HELP } from "./skills/command.js";
 import { parseAssetsArgs, runAssets, ASSETS_HELP } from "./assets/command.js";
+import { parseAgentsArgs, runAgents, AGENTS_HELP } from "./agents/command.js";
+import { renderCompletion, parseCompletionArgs } from "./complete.js";
+import { runMcp } from "./mcp/server.js";
 import { runDoctor, DOCTOR_HELP } from "./doctor/command.js";
 import { runUpdate, UPDATE_HELP } from "./update/command.js";
+import { parseUpdateArgs } from "./update/command.js";
 import { createAsk, runWizard, parseInitArgs, runInit, INIT_HELP } from "./wizard.js";
 import { VERSION } from "./version.js";
-import { log } from "./log.js";
+import { log, setJsonMode } from "./log.js";
 
 const HELP = `siteforge v${VERSION} — forge killer interactive sites.
 
@@ -30,6 +34,9 @@ Commands:
   ship      Commit, create the GitHub repo, and push
   skills    List/install agent skills for this toolkit
   assets    Batch-compress images in a directory
+  agents    Detect stack + write AGENTS.md conventions
+  mcp       Serve tools to AI agents over MCP (stdio)
+  completion  Print shell tab-completion script
   doctor    Check this machine for everything SiteForge needs
   update    Self-update to the latest published version
 
@@ -45,6 +52,9 @@ Examples:
   siteforge ship --repo my-site
 
 Docs: https://github.com/arjav1181/siteforge
+
+Global flags: --json (machine result on stdout, logs on stderr),
+--help on any command prints its manual.
 `;
 
 async function main(): Promise<void> {
@@ -64,6 +74,13 @@ async function main(): Promise<void> {
       return;
     }
     const wantsHelp = rest.includes("--help") || rest.includes("-h");
+    // --json: human logs go to stderr, machine result to stdout.
+    const jsonMode = rest.includes("--json");
+    const args = rest.filter((a) => a !== "--json");
+    if (jsonMode) setJsonMode(true);
+    const emit = (result: unknown) => {
+      if (jsonMode && result !== undefined) process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+    };
     switch (cmd) {
       case "help":
         process.stdout.write(HELP);
@@ -73,7 +90,7 @@ async function main(): Promise<void> {
         {
           const { ask, close } = createAsk();
           try {
-            await runInit(ask, parseInitArgs(rest));
+            await runInit(ask, parseInitArgs(args));
           } finally {
             close();
           }
@@ -81,50 +98,61 @@ async function main(): Promise<void> {
         return;
       case "video":
         if (wantsHelp) { process.stdout.write(VIDEO_HELP); return; }
-        await runVideo(parseVideoArgs(rest));
+        emit(await runVideo(parseVideoArgs(args)));
         return;
       case "add":
         if (wantsHelp) { process.stdout.write(ADD_HELP); return; }
-        await runAdd(parseAddArgs(rest));
+        emit(await runAdd(parseAddArgs(args)));
         return;
       case "fx":
         if (wantsHelp) { process.stdout.write(FX_HELP); return; }
-        await runFx(parseFxArgs(rest));
+        emit(await runFx(parseFxArgs(args)));
         return;
       case "3d":
         if (wantsHelp) { process.stdout.write(THREE_HELP); return; }
-        await runThree(parseThreeArgs(rest));
+        emit(await runThree(parseThreeArgs(args)));
         return;
       case "record":
         if (wantsHelp) { process.stdout.write(RECORD_HELP); return; }
-        await runRecord(parseRecordArgs(rest));
+        emit(await runRecord(parseRecordArgs(args)));
         return;
       case "audit":
         if (wantsHelp) { process.stdout.write(AUDIT_HELP); return; }
         {
-          const clean = await runAudit(parseAuditArgs(rest));
-          if (!clean) process.exitCode = 1;
+          const r = await runAudit(parseAuditArgs(args));
+          emit(r);
+          if (!r.clean) process.exitCode = 1;
         }
         return;
       case "ship":
         if (wantsHelp) { process.stdout.write(SHIP_HELP); return; }
-        await runShip(parseShipArgs(rest));
+        emit(await runShip(parseShipArgs(args)));
         return;
       case "skills":
         if (wantsHelp) { process.stdout.write(SKILLS_HELP); return; }
-        await runSkills(parseSkillsArgs(rest));
+        emit(await runSkills(parseSkillsArgs(args)));
         return;
       case "assets":
         if (wantsHelp) { process.stdout.write(ASSETS_HELP); return; }
-        await runAssets(parseAssetsArgs(rest));
+        emit(await runAssets(parseAssetsArgs(args)));
         return;
       case "doctor":
         if (wantsHelp) { process.stdout.write(DOCTOR_HELP); return; }
-        await runDoctor();
+        emit(await runDoctor());
         return;
       case "update":
         if (wantsHelp) { process.stdout.write(UPDATE_HELP); return; }
-        await runUpdate();
+        emit(await runUpdate(parseUpdateArgs(args).check));
+        return;
+      case "agents":
+        if (wantsHelp) { process.stdout.write(AGENTS_HELP); return; }
+        emit(await runAgents({ ...parseAgentsArgs(args), cwd: process.cwd() }));
+        return;
+      case "completion":
+        process.stdout.write(renderCompletion(parseCompletionArgs(args.filter((a) => a !== "--json"))));
+        return;
+      case "mcp":
+        await runMcp();
         return;
       default:
         throw new Error(`Unknown command: ${cmd}\n\n${HELP}`);

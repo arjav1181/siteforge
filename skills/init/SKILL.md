@@ -1,6 +1,6 @@
 ---
 name: siteforge-init
-description: Start a guided new site with `siteforge init` (or bare `siteforge` wizard). Use when the user wants a full site scaffolded interactively — video background plus chosen sections and effects.
+description: Scaffold a complete new site interactively via `siteforge init` (or bare `siteforge` wizard): video background plus chosen sections and effects. Use when the user wants a full site generated in one guided flow.
 ---
 
 # siteforge init
@@ -19,3 +19,9 @@ entries → shared CSS ensured. Finish by importing components in
 Bare `siteforge` opens the same wizard menu for every other command
 (add/fx/record/audit/ship/skills/doctor). Non-TTY shells must pass flags —
 prompts refuse to guess.
+
+## Examples
+
+- `siteforge init --video intro.mp4 --dir site --sections hero,navbar,work --fx fx:cursor`
+- Bare `siteforge` → menu → 1 → answer prompts
+- Non-TTY shells must pass flags (prompts refuse to guess)

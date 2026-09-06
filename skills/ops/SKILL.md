@@ -1,6 +1,6 @@
 ---
 name: siteforge-ops
-description: Install toolkit skills, optimize images, check the machine, and self-update (`siteforge skills|assets|doctor|update`). Use for setup, maintenance, and pre-ship hygiene.
+description: Toolkit maintenance via `siteforge skills|assets|doctor|update|agents|completion|mcp`: install agent skills (Claude/Cursor/OpenCode/Codex/Aider/Pi), batch-compress images, env doctor, self-update, AGENTS.md generation, shell completion, MCP server. Use for setup, hygiene, and agent wiring.
 ---
 
 # siteforge ops
@@ -17,3 +17,10 @@ files); paths print as they land — move them if an agent changes layout.
 `assets` rewrites jpg/png/webp in place (default q80, max-width 1920) —
 commit first, preview with `--dry-run`. `doctor` is the first thing to run
 when any command complains about its environment.
+
+## Examples
+
+- `siteforge skills install --agent claude --global`
+- `siteforge assets public --dry-run` then apply
+- `siteforge agents init` writes repo conventions for agents
+- Anything odd: `siteforge doctor` first

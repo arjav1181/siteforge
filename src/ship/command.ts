@@ -65,7 +65,7 @@ async function git(args: string[], cwd = process.cwd()): Promise<string> {
   return stdout.trim();
 }
 
-export async function runShip(o: ShipOptions): Promise<void> {
+export async function runShip(o: ShipOptions): Promise<{ pushed: boolean }> {
   if (!(await commandExists("git"))) throw new Error("git not found");
 
   try {
@@ -89,7 +89,7 @@ export async function runShip(o: ShipOptions): Promise<void> {
     log.step("Nothing to commit — working tree clean.");
   }
 
-  if (!o.push) return;
+  if (!o.push) return { pushed: false };
 
   if (!(await commandExists("gh"))) {
     throw new Error("gh CLI not found — install it (https://cli.github.com), then: gh auth login");
@@ -129,4 +129,5 @@ export async function runShip(o: ShipOptions): Promise<void> {
   log.blank();
   log.dim("  Deploy to Vercel: import the repo at https://vercel.com/new");
   log.blank();
+  return { pushed: true };
 }

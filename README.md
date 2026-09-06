@@ -32,6 +32,9 @@ with no args for the interactive wizard, `siteforge doctor` to check your box.
 | `siteforge audit <url>` | Overflow culprits, meta/alt/console/weight | [docs/audit.md](docs/audit.md) |
 | `siteforge ship` | Commit → GitHub repo → push | [docs/ship.md](docs/ship.md) |
 | `siteforge skills install` | Agent skills for Claude/Cursor/OpenCode/Codex/Aider/Pi | [docs/ops.md](docs/ops.md) |
+| `siteforge agents init` | Detect stack, write AGENTS.md conventions | [docs/agents.md](docs/agents.md) |
+| `siteforge mcp` | MCP server: tools for agents (stdio) | [docs/mcp.md](docs/mcp.md) |
+| `siteforge completion bash` | Shell tab-completion | [docs/agents.md](docs/agents.md) |
 | `siteforge assets public` | Batch-compress site images | [docs/ops.md](docs/ops.md) |
 | `siteforge doctor` / `update` | Env check / self-update | [docs/ops.md](docs/ops.md) |
 

@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { renderPage } from "./template/page.js";
+import { renderForgeMd } from "./compose.js";
 
 export interface ScaffoldOptions {
   outDir: string;
@@ -25,8 +26,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Video Portfolio",
-  description: "Scroll-driven video frame animation portfolio",
+  title: "Immersive Site",
+  description: "Scroll-driven video frame animation site",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -224,4 +225,5 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
     await mkdir(path.dirname(full), { recursive: true });
     await writeFile(full, content);
   }
+  await writeFile(path.join(outDir, "FORGE.md"), renderForgeMd(projectName));
 }

@@ -10,6 +10,9 @@ siteforge skills install [--agent claude,cursor,opencode,codex,aider,pi] [--glob
 siteforge assets public --dry-run        # then without --dry-run to apply
 siteforge doctor                          # env report per command
 siteforge update                          # latest published version
+siteforge demo [dir]                      # instant sample site, no files needed
+siteforge agents init                     # repo conventions for agents
+siteforge mcp                             # stdio tools for agents
 ```
 
 Skills install as SKILL.md per agent convention (Cursor gets `.mdc` rule

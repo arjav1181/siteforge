@@ -11,10 +11,12 @@ siteforge init --video intro.mp4 --dir my-site --fps 30 \
   --sections hero,navbar,work,contact --fx fx:cursor,fx:marquee
 ```
 
-Interactive prompts cover anything flags don't. Flow: video pipeline (install
-runs, build skipped for speed) → chosen `add` sections → chosen `fx`/`3d`
-entries → shared CSS ensured. Finish by importing components in
-`src/app/page.tsx`, running dev, then `siteforge audit` → `siteforge ship`.
+Prompts cover headline, subline, email, GitHub plus anything flags don't.
+Output arrives with YOUR content baked in (no YOUR NAME placeholders):
+hero copy replaced, contact wired to your email/GitHub, layout title set,
+picked sections imported + rendered, `FORGE.md` guide included. Flow: video
+pipeline (install runs, build skipped) → compose → fx. Finish with dev,
+then `siteforge audit` → `siteforge ship`.
 
 Bare `siteforge` opens the same wizard menu for every other command
 (add/fx/record/audit/ship/skills/doctor). Non-TTY shells must pass flags —

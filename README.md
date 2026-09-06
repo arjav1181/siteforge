@@ -25,7 +25,7 @@ with no args for the interactive wizard, `siteforge doctor` to check your box.
 |---|---|---|
 | `siteforge init` | Guided new site: video bg + sections + FX | [docs/init.md](docs/init.md) |
 | `siteforge video intro.mp4 site` | Video → scroll-driven Next.js site | [docs/video.md](docs/video.md) |
-| `siteforge add hero` | 12 sections: hero×2, navbar, about, work, skills, experience, contact, pricing, faq, testimonials, gallery | [docs/add.md](docs/add.md) |
+| `siteforge add hero` | 15 sections: hero×2, navbar, about, work, skills, experience, contact, pricing, faq, testimonials, gallery, features, cta, logos | [docs/add.md](docs/add.md) |
 | `siteforge fx cursor` | cursor, badge, progress, reveal, favicon, smooth, marquee, preloader, magnetic | [docs/fx.md](docs/fx.md) |
 | `siteforge 3d particle` | Three.js heroes: particle, terrain, shapes, orb, GLB model viewer | [docs/3d.md](docs/3d.md) |
 | `siteforge record <url> --out demo.mp4` | 30fps demo video + poster of any page | [docs/record.md](docs/record.md) |
@@ -40,12 +40,17 @@ with no args for the interactive wizard, `siteforge doctor` to check your box.
 
 ```bash
 siteforge init --video reel.mp4 --dir my-site \
-  --sections hero,navbar,work,contact --fx fx:cursor,3d:particle
-cd my-site && npm run dev     # import components, pass real content
+  --headline "Acme Launch" --email "hi@acme.test" \
+  --sections navbar,features,pricing,contact --fx fx:cursor
+cd my-site && npm run dev     # your content is already in
 siteforge record http://localhost:3000 --out demo.mp4
 siteforge audit http://localhost:3000
 siteforge ship --repo my-site
 ```
+
+<video src="assets/demo.mp4" width="100%" autoplay muted loop playsinline></video>
+
+*Above: a real `siteforge video` run — terminal to scroll-driven site.*
 
 ## For AI agents
 

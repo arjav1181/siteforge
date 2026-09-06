@@ -1,8 +1,7 @@
 import readline from "node:readline";
 import path from "node:path";
-import { existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { runVideo } from "./video/command.js";
-import { SECTIONS, renderSharedCss } from "./add/sections.js";
+import { SECTIONS } from "./add/sections.js";
 import { runAdd } from "./add/command.js";
 import { FX } from "./fx/effects.js";
 import { runFx } from "./fx/command.js";
@@ -62,6 +61,7 @@ const MENU = `
     6) Ship it         commit + GitHub + push
     7) Install skills  agent skills for this toolkit
     8) Doctor          check this machine
+    9) Quick demo      sample site, no files needed
     0) Exit
 `;
 
@@ -118,6 +118,11 @@ export async function runWizard(ask: Ask): Promise<void> {
       case "8":
         await runDoctor();
         break;
+      case "9": {
+        const { runDemo } = await import("./demo/command.js");
+        await runDemo({ dir: "./siteforge-demo", fps: 24 });
+        break;
+      }
       case "0":
       default:
         log.dim("  Later!");
@@ -131,26 +136,37 @@ export interface InitOptions {
   video: string | null;
   dir: string | null;
   fps: number | null;
+  headline: string | null;
+  subline: string | null;
+  email: string | null;
+  github: string | null;
   sections: string[] | null;
   fx: string[] | null;
 }
 
-export const INIT_HELP = `siteforge init — guided new site: video background + sections + FX.
+export const INIT_HELP = `siteforge init — guided new site: video background + your content + sections + FX.
 
 Usage:
   siteforge init [options]        (interactive wizard)
-  siteforge init --video intro.mp4 --dir my-site --sections hero,navbar,work --fx cursor
+  siteforge init --video intro.mp4 --dir my-site --headline "Make it unforgettable."
 
 Options:
   --video <file>        Source video (skips prompt)
   --dir <dir>           Site directory (default: derived from video)
   --fps <n>             Frame rate (default: source fps)
+  --headline <text>     Hero headline (default: keep template)
+  --subline <text>      Hero subline (default: keep template)
+  --email <addr>        Contact email (wired into contact section)
+  --github <url>        GitHub URL (wired into contact section)
   --sections <a,b>      Section names (see: siteforge add --list)
   --fx <a,b>            fx:NAME or 3d:NAME entries (see: siteforge fx --list)
 `;
 
 export function parseInitArgs(argv: string[]): InitOptions {
-  const o: InitOptions = { video: null, dir: null, fps: null, sections: null, fx: null };
+  const o: InitOptions = {
+    video: null, dir: null, fps: null, headline: null, subline: null,
+    email: null, github: null, sections: null, fx: null,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const next = () => {
@@ -167,6 +183,10 @@ export function parseInitArgs(argv: string[]): InitOptions {
         o.fps = v;
         break;
       }
+      case "--headline": o.headline = next(); break;
+      case "--subline": o.subline = next(); break;
+      case "--email": o.email = next(); break;
+      case "--github": o.github = next(); break;
       case "--sections": o.sections = next().split(",").map((s) => s.trim()).filter(Boolean); break;
       case "--fx": o.fx = next().split(",").map((s) => s.trim()).filter(Boolean); break;
       default: throw new Error(`Unknown option for init: ${a}`);
@@ -175,13 +195,24 @@ export function parseInitArgs(argv: string[]): InitOptions {
   return o;
 }
 
-export async function runInit(ask: Ask, flags: InitOptions = { video: null, dir: null, fps: null, sections: null, fx: null }): Promise<void> {
+export async function runInit(ask: Ask, flags: InitOptions = { video: null, dir: null, fps: null, headline: null, subline: null, email: null, github: null, sections: null, fx: null }): Promise<void> {
   const video = flags.video ?? (await ask("  Video file", ""));
   if (!video) throw new Error("A video file is required.");
   const dir = flags.dir ?? (await ask("  Site directory", ""));
   const fpsRaw = flags.fps !== null ? String(flags.fps) : await ask("  FPS (empty = source fps)", "");
   const fps = fpsRaw ? Number(fpsRaw) : null;
   if (fpsRaw && (!Number.isFinite(fps as number) || (fps as number) <= 0)) throw new Error("--fps must be positive");
+
+  const headline = flags.headline ?? (await ask("  Headline", ""));
+  const subline = flags.subline ?? (await ask("  Subline", ""));
+  const email = flags.email ?? (await ask("  Contact email", ""));
+  const github = flags.github ?? (await ask("  GitHub URL", ""));
+  const content = {
+    ...(headline ? { headline } : {}),
+    ...(subline ? { subline } : {}),
+    ...(email ? { email } : {}),
+    ...(github ? { github } : {}),
+  };
 
   log.step("Building video background...");
   const out = dir || `./${path.basename(video).replace(/\.[^.]*$/, "") || "site"}-site`;
@@ -193,14 +224,18 @@ export async function runInit(ask: Ask, flags: InitOptions = { video: null, dir:
 
   const sectionNames = Object.keys(SECTIONS);
   const pickedSections = flags.sections ?? (await pickList(ask, "Sections:", sectionNames));
-  for (const n of pickedSections) {
-    if (!SECTIONS[n]) { log.warn(`Unknown section "${n}" — skipped.`); continue; }
-    await runAdd({ section: n, dir: path.join(out, "src", "components"), list: false });
-  }
 
   const fxNames = Object.keys(FX).map((n) => `fx:${n}`);
   const tdNames = Object.keys(PRESETS).map((n) => `3d:${n}`);
   const pickedFx = flags.fx ?? (await pickList(ask, "Effects & 3D:", [...fxNames, ...tdNames]));
+
+  const { composeSite } = await import("./video/compose.js");
+  await composeSite(out, {
+    content,
+    sections: pickedSections,
+    projectName: path.basename(path.resolve(out)),
+  });
+
   for (const n of pickedFx) {
     const target = path.join(out, "src", "components");
     if (n.startsWith("fx:")) {
@@ -218,18 +253,10 @@ export async function runInit(ask: Ask, flags: InitOptions = { video: null, dir:
     } else log.warn(`Unknown entry "${n}" — skipped.`);
   }
 
-  // Shared CSS for everything added (runAdd writes it on first add; ensure it).
-  const cssPath = path.join(out, "src", "components", "siteforge.css");
-  if (!existsSync(cssPath)) {
-    mkdirSync(path.join(out, "src", "components"), { recursive: true });
-    writeFileSync(cssPath, renderSharedCss());
-    log.ok(`Wrote ${cssPath}`);
-  }
-
   log.blank();
-  log.ok("Site forged. Next:");
+  log.ok("Site forged — with your content, not placeholders. Next:");
   log.dim(`  1. cd ${out} && <pm> run dev`);
-  log.dim("  2. Import components in src/app/page.tsx, pass real content");
+  log.dim("  2. Read FORGE.md for the map, pass real content to components");
   log.dim("  3. siteforge audit <url> → siteforge ship");
   log.blank();
 }

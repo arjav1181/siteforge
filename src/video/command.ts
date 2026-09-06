@@ -122,7 +122,7 @@ export async function runVideo(opts: VideoOptions): Promise<VideoResult> {
   const pm = opts.install || opts.build ? await detectPackageManager(opts.pm ?? undefined) : null;
 
   const outDir = path.resolve(opts.outDir);
-  const projectName = opts.name ?? (path.basename(outDir).replace(/[^a-zA-Z0-9-_]/g, "-").toLowerCase() || "video-portfolio");
+  const projectName = opts.name ?? (path.basename(outDir).replace(/[^a-zA-Z0-9-_]/g, "-").toLowerCase() || "video-site");
 
   log.blank();
   log.step(`Video:    ${opts.video}`);

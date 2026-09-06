@@ -3,6 +3,15 @@
 ## [Unreleased]
 
 ### Added
+- Content-aware `init`: headline/subline/email/GitHub baked in, sections
+  auto-imported + rendered, custom-hero swap, `FORGE.md` in every project
+- `siteforge demo`: instant sample site from a generated clip
+- New sections: `features`, `cta`, `logos` (15 total); new fx already in:
+  `marquee`, `preloader`, `magnetic`
+- Toolkit is site-kind agnostic: landing pages, portfolios, campaign sites
+  (messaging + template de-portfolioed)
+
+### Added
 - Agent-native `--json` output on every command (logs to stderr, result JSON on stdout)
 - `siteforge mcp`: stdio MCP server (add_section, add_effect, add_3d_scene, audit_page, install_skills, check_env)
 - `siteforge agents`: stack detection + AGENTS.md generator

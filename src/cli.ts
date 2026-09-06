@@ -8,6 +8,7 @@ import { parseAuditArgs, runAudit, AUDIT_HELP } from "./audit/command.js";
 import { parseShipArgs, runShip, SHIP_HELP } from "./ship/command.js";
 import { parseSkillsArgs, runSkills, SKILLS_HELP } from "./skills/command.js";
 import { parseAssetsArgs, runAssets, ASSETS_HELP } from "./assets/command.js";
+import { parseDemoArgs, runDemo, DEMO_HELP } from "./demo/command.js";
 import { parseAgentsArgs, runAgents, AGENTS_HELP } from "./agents/command.js";
 import { renderCompletion, parseCompletionArgs } from "./complete.js";
 import { runMcp } from "./mcp/server.js";
@@ -25,6 +26,7 @@ Usage:
 
 Commands:
   init      Guided new site: video background + sections + FX
+  demo      Forge a sample site instantly (no files needed)
   video     Turn a video into a scroll-driven Next.js site
   add       Drop a pre-built section into your site
   fx        Drop an interactive effect into your site
@@ -95,6 +97,10 @@ async function main(): Promise<void> {
             close();
           }
         }
+        return;
+      case "demo":
+        if (wantsHelp) { process.stdout.write(DEMO_HELP); return; }
+        emit(await runDemo(parseDemoArgs(args)));
         return;
       case "video":
         if (wantsHelp) { process.stdout.write(VIDEO_HELP); return; }

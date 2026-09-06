@@ -671,6 +671,122 @@ export default function Gallery({ heading = "In the wild", images = DEFAULT_IMAG
 }
 `,
   },
+
+  features: {
+    file: "Features.tsx",
+    description: "Benefit cards grid — the core of any landing page",
+    props: "heading, sub, features: {title, desc, icon?}[]",
+    render: () => `interface Feature {
+  title: string;
+  desc: string;
+  icon?: string;
+}
+
+interface FeaturesProps {
+  heading?: string;
+  sub?: string;
+  features?: Feature[];
+}
+
+const DEFAULT_FEATURES: Feature[] = [
+  { title: "Fast by default", desc: "Optimized from the first byte. No spinners, no waiting.", icon: "⚡" },
+  { title: "Beautiful out of the box", desc: "Design system included. Every pixel considered.", icon: "✦" },
+  { title: "Yours to own", desc: "Plain code, no lock-in. Change anything.", icon: "◈" },
+];
+
+export default function Features({
+  heading = "Why it hits different",
+  sub = "Everything you need, nothing you don't.",
+  features = DEFAULT_FEATURES,
+}: FeaturesProps) {
+  return (
+    <section id="features" className="relative z-10">
+      <div className="mx-auto max-w-6xl px-5 py-24 md:py-40 text-center">
+        <h2 className="reveal text-[clamp(1.75rem,5vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em]">
+          {heading}
+        </h2>
+        <p className="reveal mt-4 text-base md:text-lg opacity-50 max-w-xl mx-auto">{sub}</p>
+        <div className="mt-10 md:mt-16 grid gap-4 md:gap-6 md:grid-cols-3 text-left">
+          {features.map((f) => (
+            <div key={f.title} className="reveal rounded-2xl border border-white/10 bg-white/[0.02] p-6 md:p-8 hover:border-white/25 transition-colors">
+              {f.icon && <p className="text-2xl mb-4">{f.icon}</p>}
+              <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
+              <p className="text-sm opacity-60 leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
+
+  cta: {
+    file: "CtaBand.tsx",
+    description: "Full-width conversion band with headline + button",
+    props: "heading, accent, label, href",
+    render: () => `interface CtaBandProps {
+  heading?: string;
+  accent?: string;
+  label?: string;
+  href?: string;
+}
+
+export default function CtaBand({
+  heading = "Ready when you are.",
+  accent = "One click starts everything.",
+  label = "GET STARTED",
+  href = "#start",
+}: CtaBandProps) {
+  return (
+    <section className="relative z-10">
+      <div className="mx-auto max-w-6xl px-5 py-24 md:py-32">
+        <div className="reveal rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-16 md:py-24 text-center overflow-hidden">
+          <h2 className="text-[clamp(2rem,6vw,4.5rem)] font-bold leading-[1] tracking-[-0.03em]">
+            {heading}<br />
+            <span className="opacity-30">{accent}</span>
+          </h2>
+          <a href={href} className="magnetic-btn mt-8 md:mt-10">
+            <span>{label}</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
+
+  logos: {
+    file: "LogoCloud.tsx",
+    description: "Social-proof logo strip",
+    props: "caption, logos: string[]",
+    render: () => `interface LogoCloudProps {
+  caption?: string;
+  logos?: string[];
+}
+
+const DEFAULT_LOGOS = ["ACME", "Globex", "Initech", "Umbrella", "Hooli"];
+
+export default function LogoCloud({ caption = "TRUSTED BY TEAMS THAT SHIP", logos = DEFAULT_LOGOS }: LogoCloudProps) {
+  return (
+    <section className="relative z-10">
+      <div className="mx-auto max-w-6xl px-5 py-12 md:py-16 text-center">
+        <p className="reveal text-[10px] md:text-[11px] tracking-[0.25em] opacity-30 mb-8">{caption}</p>
+        <div className="reveal flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+          {logos.map((l) => (
+            <span key={l} className="text-lg md:text-xl font-bold tracking-tight opacity-25 hover:opacity-60 transition-opacity select-none">
+              {l}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
 };
 
 /** Shared stylesheet backing reveal/buttons/cards/timeline (append-safe). */

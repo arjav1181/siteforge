@@ -1,6 +1,6 @@
 ---
 name: siteforge-video
-description: Turn any video file into a scroll-driven Next.js + Tailwind portfolio site (video background scrubs with scroll, frame extraction, 4:4:4 chroma, scaffold, build). Use when the user says: video background, scroll video, video portfolio, animate frames on scroll, site from a video, or runs `siteforge video`.
+description: Turn any video file into a scroll-driven Next.js + Tailwind site — landing pages, portfolios, campaign sites, any immersive page (video background scrubs with scroll, frame extraction, 4:4:4 chroma, scaffold, build). Use when the user says: video background, scroll video, immersive site, animate frames on scroll, site from a video, or runs `siteforge video`.
 ---
 
 # siteforge video

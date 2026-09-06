@@ -6,6 +6,7 @@ export function renderPage(frameCount: number): string {
   return `"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+// __COMPONENT_IMPORTS__
 
 const FRAME_COUNT = ${frameCount};
 
@@ -198,18 +199,19 @@ export default function Home() {
         <div ref={progressRef} className="h-full bg-white" style={{ width: "0.33%", willChange: "width" }} />
       </div>
 
+      {/* __DEFAULT_HERO_START__ */}
       {/* ═══════════════════════════════════════════════════════════════════ HERO */}
       <section className="relative z-10 flex h-screen flex-col items-center justify-center px-6">
         <div className="relative text-center w-full max-w-4xl mx-auto">
-          <h1 className="font-extrabold leading-[0.88] tracking-[-0.04em] text-white"
+          <h1 className="font-extrabold uppercase leading-[0.88] tracking-[-0.04em] text-white"
               style={{ fontSize: "clamp(2.5rem, 10vw, 14rem)" }}>
-            YOUR NAME
+            Make it unforgettable.
           </h1>
           <p className="mt-6 text-[clamp(13px,1.5vw,18px)] text-white/50 max-w-md mx-auto leading-relaxed">
-            Your tagline goes here.
+            Your subline goes here. One sentence on what this is.
           </p>
-          <a href="#work" className="magnetic-btn mt-8">
-            <span>VIEW WORK</span>
+          <a href="#start" className="magnetic-btn mt-8">
+            <span>GET STARTED</span>
             <span className="relative z-10">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="transition-transform group-hover:translate-x-1">
                 <path d="M1 13L13 1M13 1H3M13 1V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -225,16 +227,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* __DEFAULT_HERO_END__ */}
 
-      {/* ═══════════════════════════════════════════════════════════════════ PLACEHOLDER SECTIONS */}
-      {/*
-        Add your sections here. The canvas plays underneath everything.
-        Use className="relative z-10" on each section.
-        Use className="reveal" on elements you want to animate in on scroll.
-      */}
-      <section className="relative z-10 h-screen flex items-center justify-center">
-        <p className="text-white/30 text-sm tracking-widest uppercase">Add your sections here</p>
-      </section>
+      {/* __EXTRA_SECTIONS__ */}
 
       <noscript>
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black p-8 text-center">

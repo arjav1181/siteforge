@@ -4,9 +4,9 @@
 [![npm version](https://img.shields.io/npm/v/@arjav1181/siteforge.svg)](https://www.npmjs.com/package/@arjav1181/siteforge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Forge **killer interactive sites** from your terminal. One CLI, six tools —
-video backgrounds, drop-in sections, FX pack, demo recorder, site audit, ship
-helper. Zero-config output built on Next.js + Tailwind.
+Forge **killer interactive sites** from your terminal. One CLI — video
+backgrounds, drop-in sections, FX pack, 3D scenes, demo recorder, site audit,
+ship helper. Output is Next.js + Tailwind you own completely.
 
 ```bash
 npm i -g @arjav1181/siteforge
@@ -16,24 +16,29 @@ curl -fsSL https://raw.githubusercontent.com/arjav1181/siteforge/main/install.sh
 
 Requirements: **Node.js 18+**. Video/record/audit additionally need
 **ffmpeg** and a **system Chrome/Chromium** (no browser downloads — we drive
-what's installed). Generated sites need **bun or npm**.
+what's installed). Generated sites need **bun or npm**. Run `siteforge`
+with no args for the interactive wizard, `siteforge doctor` to check your box.
 
 ## The toolkit
 
 | Command | What it does | Docs |
 |---|---|---|
-| `siteforge video intro.mp4 site` | Video → scroll-driven Next.js site (frames scrub with scroll) | [docs/video.md](docs/video.md) |
-| `siteforge add hero` | Drop-in sections: hero, hero-grid, navbar, about, work, skills, experience, contact | [docs/add.md](docs/add.md) |
-| `siteforge fx cursor` | FX pack: cursor follower, pixel badge, progress rail, reveal hook, favicon, smooth scroll | [docs/fx.md](docs/fx.md) |
+| `siteforge init` | Guided new site: video bg + sections + FX | [docs/init.md](docs/init.md) |
+| `siteforge video intro.mp4 site` | Video → scroll-driven Next.js site | [docs/video.md](docs/video.md) |
+| `siteforge add hero` | 12 sections: hero×2, navbar, about, work, skills, experience, contact, pricing, faq, testimonials, gallery | [docs/add.md](docs/add.md) |
+| `siteforge fx cursor` | cursor, badge, progress, reveal, favicon, smooth, marquee, preloader, magnetic | [docs/fx.md](docs/fx.md) |
+| `siteforge 3d particle` | Three.js heroes: particle, terrain, shapes, orb, GLB model viewer | [docs/3d.md](docs/3d.md) |
 | `siteforge record <url> --out demo.mp4` | 30fps demo video + poster of any page | [docs/record.md](docs/record.md) |
-| `siteforge audit <url>` | Overflow culprits, meta/alt/console/weight report | [docs/audit.md](docs/audit.md) |
+| `siteforge audit <url>` | Overflow culprits, meta/alt/console/weight | [docs/audit.md](docs/audit.md) |
 | `siteforge ship` | Commit → GitHub repo → push | [docs/ship.md](docs/ship.md) |
+| `siteforge skills install` | Agent skills for Claude/Cursor/OpenCode/Codex/Aider/Pi | [docs/ops.md](docs/ops.md) |
+| `siteforge assets public` | Batch-compress site images | [docs/ops.md](docs/ops.md) |
+| `siteforge doctor` / `update` | Env check / self-update | [docs/ops.md](docs/ops.md) |
 
 ```bash
-siteforge video reel.mp4 my-site --fps 30
-cd my-site
-siteforge add navbar --dir src/components
-siteforge fx cursor favicon --letter A   # one effect per call; see --list
+siteforge init --video reel.mp4 --dir my-site \
+  --sections hero,navbar,work,contact --fx fx:cursor,3d:particle
+cd my-site && npm run dev     # import components, pass real content
 siteforge record http://localhost:3000 --out demo.mp4
 siteforge audit http://localhost:3000
 siteforge ship --repo my-site
@@ -41,10 +46,10 @@ siteforge ship --repo my-site
 
 ## For AI agents
 
-Drop-in skills in [`skills/`](skills/) — `video`, `add`, `fx`, `record`,
-`audit`, `ship` (+ `customize` wisdom baked into each). Compatible with Claude
-Code, Cursor, OpenCode, and Copilot. If an agent is building your site, point
-it at these first.
+Drop-in skills in [`skills/`](skills/) — `video`, `add`, `fx`, `v3d`,
+`init`, `record`, `audit`, `ship`, `ops`. Install them anywhere with
+`siteforge skills install [--agent …] [--global]`. If an agent is building
+your site, point it at these first.
 
 ## Why sites built this way look clean
 
@@ -57,9 +62,8 @@ it at these first.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md): `npm install`, `npm run dev`,
-`npm test`. Keep runtime deps minimal, cover helpers with tests, update the
-changelog. Full rewrite history of the original bash script lives in the
-sister repo [`video-to-site`](https://github.com/arjav1181/video-to-site).
+`npm test`. Keep runtime deps minimal (`sharp`, `playwright-core`),
+cover helpers with tests, update the changelog.
 
 ## License
 

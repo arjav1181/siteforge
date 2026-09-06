@@ -479,6 +479,198 @@ export default function Contact({
 }
 `,
   },
+
+  pricing: {
+    file: "Pricing.tsx",
+    description: "Three-tier pricing with a highlighted plan",
+    props: "heading, plans: {name, price, period, features[], cta, href, featured?}[]",
+    render: () => `interface Plan {
+  name: string;
+  price: string;
+  period?: string;
+  features: string[];
+  cta?: string;
+  href?: string;
+  featured?: boolean;
+}
+
+interface PricingProps {
+  heading?: string;
+  plans?: Plan[];
+}
+
+const DEFAULT_PLANS: Plan[] = [
+  { name: "Starter", price: "$0", period: "/mo", features: ["Feature one", "Feature two"], cta: "Start free", href: "#" },
+  { name: "Pro", price: "$19", period: "/mo", features: ["Everything in Starter", "Feature three", "Feature four"], cta: "Go Pro", href: "#", featured: true },
+  { name: "Team", price: "$49", period: "/mo", features: ["Everything in Pro", "Feature five"], cta: "Contact us", href: "#" },
+];
+
+export default function Pricing({ heading = "Pricing", plans = DEFAULT_PLANS }: PricingProps) {
+  return (
+    <section className="relative z-10">
+      <div className="mx-auto max-w-6xl px-5 py-24 md:py-40">
+        <h2 className="reveal text-[clamp(1.75rem,5vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em] mb-10 md:mb-16 text-center">
+          {heading}
+        </h2>
+        <div className="grid gap-4 md:gap-6 md:grid-cols-3">
+          {plans.map((p) => (
+            <div
+              key={p.name}
+              className={\`reveal rounded-2xl border p-6 md:p-8 flex flex-col \${p.featured ? "border-white/30 bg-white/5" : "border-white/10"}\`}
+            >
+              <h3 className="text-[11px] tracking-[0.2em] opacity-40 uppercase mb-4">{p.name}</h3>
+              <p className="mb-6">
+                <span className="text-4xl md:text-5xl font-bold">{p.price}</span>
+                {p.period && <span className="opacity-40 text-sm">{p.period}</span>}
+              </p>
+              <ul className="flex flex-col gap-2.5 mb-8 text-sm opacity-70">
+                {p.features.map((f) => (
+                  <li key={f} className="flex gap-2"><span className="opacity-50">✓</span>{f}</li>
+                ))}
+              </ul>
+              <a href={p.href ?? "#"} className={\`mt-auto text-center rounded-full py-3 text-[11px] tracking-[0.2em] uppercase transition-colors \${p.featured ? "bg-white text-black hover:opacity-85" : "border border-white/20 hover:border-white/50"}\`}>
+                {p.cta ?? "Choose"}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
+
+  faq: {
+    file: "Faq.tsx",
+    description: "Accordion Q&A (native details, zero JS)",
+    props: "heading, items: {q, a}[]",
+    render: () => `interface FaqItem {
+  q: string;
+  a: string;
+}
+
+interface FaqProps {
+  heading?: string;
+  items?: FaqItem[];
+}
+
+const DEFAULT_ITEMS: FaqItem[] = [
+  { q: "First common question?", a: "Clear, honest answer in one or two sentences." },
+  { q: "Second common question?", a: "Another clear answer. No marketing fluff." },
+];
+
+export default function Faq({ heading = "Questions", items = DEFAULT_ITEMS }: FaqProps) {
+  return (
+    <section className="relative z-10">
+      <div className="mx-auto max-w-3xl px-5 py-24 md:py-40">
+        <h2 className="reveal text-[clamp(1.75rem,5vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em] mb-10 md:mb-16 text-center">
+          {heading}
+        </h2>
+        <div className="flex flex-col gap-3">
+          {items.map((it) => (
+            <details key={it.q} className="reveal group rounded-xl border border-white/10 bg-white/[0.02] px-5 py-4 open:bg-white/[0.04]">
+              <summary className="cursor-pointer list-none flex items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+                {it.q}
+                <span className="opacity-40 transition-transform group-open:rotate-45 text-xl leading-none">+</span>
+              </summary>
+              <p className="mt-3 text-sm opacity-60 leading-relaxed">{it.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
+
+  testimonials: {
+    file: "Testimonials.tsx",
+    description: "Quote cards grid",
+    props: "heading, quotes: {quote, name, role}[]",
+    render: () => `interface Quote {
+  quote: string;
+  name: string;
+  role?: string;
+}
+
+interface TestimonialsProps {
+  heading?: string;
+  quotes?: Quote[];
+}
+
+const DEFAULT_QUOTES: Quote[] = [
+  { quote: "It just works. The whole team switched in a week.", name: "Jane Doe", role: "CTO, Example" },
+  { quote: "The fastest tool we have ever adopted.", name: "John Smith", role: "Founder, Sample" },
+];
+
+export default function Testimonials({ heading = "Loved by builders", quotes = DEFAULT_QUOTES }: TestimonialsProps) {
+  return (
+    <section className="relative z-10">
+      <div className="mx-auto max-w-6xl px-5 py-24 md:py-40">
+        <h2 className="reveal text-[clamp(1.75rem,5vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em] mb-10 md:mb-16 text-center">
+          {heading}
+        </h2>
+        <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {quotes.map((q) => (
+            <figure key={q.name} className="reveal rounded-2xl border border-white/10 bg-white/[0.02] p-6 flex flex-col gap-4">
+              <blockquote className="text-base leading-relaxed opacity-80">“{q.quote}”</blockquote>
+              <figcaption className="mt-auto">
+                <p className="font-semibold text-sm">{q.name}</p>
+                {q.role && <p className="text-xs opacity-40 mt-0.5">{q.role}</p>}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
+
+  gallery: {
+    file: "Gallery.tsx",
+    description: "Image strip grid for screenshots / lookbook",
+    props: "heading, images: {src, alt}[]",
+    render: () => `interface GalleryImage {
+  src: string;
+  alt?: string;
+}
+
+interface GalleryProps {
+  heading?: string;
+  images?: GalleryImage[];
+}
+
+const DEFAULT_IMAGES: GalleryImage[] = [
+  { src: "/shots/shot-1.jpg", alt: "Screenshot 1" },
+  { src: "/shots/shot-2.jpg", alt: "Screenshot 2" },
+  { src: "/shots/shot-3.jpg", alt: "Screenshot 3" },
+];
+
+export default function Gallery({ heading = "In the wild", images = DEFAULT_IMAGES }: GalleryProps) {
+  return (
+    <section className="relative z-10">
+      <div className="mx-auto max-w-6xl px-5 py-24 md:py-40">
+        <h2 className="reveal text-[clamp(1.75rem,5vw,3.5rem)] font-bold leading-[1.1] tracking-[-0.02em] mb-10 md:mb-16">
+          {heading}
+        </h2>
+        <div className="grid gap-4 md:gap-6 grid-cols-2 lg:grid-cols-3">
+          {images.map((img) => (
+            <div key={img.src} className="reveal overflow-hidden rounded-xl border border-white/10 bg-black/40">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={img.src} alt={img.alt ?? ""} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-500 hover:scale-105" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+`,
+  },
 };
 
 /** Shared stylesheet backing reveal/buttons/cards/timeline (append-safe). */

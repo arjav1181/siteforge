@@ -3,7 +3,9 @@
 ## [Unreleased]
 
 ### Added
-- SiteForge toolkit: `add`, `fx`, `record`, `audit`, `ship` alongside ported `video` pipeline
+- SiteForge toolkit: `init` wizard (default, bare run), `add` (12 sections),
+  `fx` (9 effects), `3d` (5 Three.js presets incl. GLB viewer), `record`,
+  `audit`, `ship`, `skills` installer (6 agents), `assets`, `doctor`, `update`
 - Agent skills for every command
 
 All notable changes to this project are documented here. Format follows

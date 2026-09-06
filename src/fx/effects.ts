@@ -206,4 +206,124 @@ export function useReveal(): void {
 /* Add to your globals.css — navbar anchor jumps will glide instead of snap. */
 `,
   },
+
+  marquee: {
+    description: "Infinite scrolling text/logo band",
+    file: "Marquee.tsx",
+    render: () => `interface MarqueeProps {
+  items?: string[];
+  speed?: number;
+}
+
+export default function Marquee({ items = ["FAST", "BOLD", "ALIVE"], speed = 22 }: MarqueeProps) {
+  const row = [...items, ...items, ...items, ...items];
+  return (
+    <div className="relative z-10 overflow-hidden border-y border-white/10 py-4 select-none" aria-hidden="true">
+      <div
+        className="flex w-max whitespace-nowrap gap-10 animate-[marquee_linear_infinite]"
+        style={{ animationDuration: \`\${speed}s\` }}
+      >
+        {row.map((t, i) => (
+          <span key={i} className="text-sm tracking-[0.3em] uppercase opacity-40">
+            {t} <span className="ml-10 opacity-50">✦</span>
+          </span>
+        ))}
+      </div>
+      <style>{\`
+        @keyframes marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      \`}</style>
+    </div>
+  );
+}
+`,
+  },
+
+  preloader: {
+    description: "Branded loading veil that fades out on first paint",
+    file: "Preloader.tsx",
+    render: () => `"use client";
+
+import { useEffect, useState } from "react";
+
+interface PreloaderProps {
+  word?: string;
+  minMs?: number;
+}
+
+export default function Preloader({ word = "LOADING", minMs = 900 }: PreloaderProps) {
+  const [gone, setGone] = useState(false);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    const t0 = performance.now();
+    const finish = () => {
+      const wait = Math.max(0, minMs - (performance.now() - t0));
+      setTimeout(() => {
+        setGone(true);
+        setTimeout(() => setHidden(true), 600);
+      }, wait);
+    };
+    if (document.readyState === "complete") finish();
+    else {
+      window.addEventListener("load", finish, { once: true });
+      setTimeout(finish, 4000); // never trap the visitor
+    }
+  }, [minMs]);
+
+  if (hidden) return null;
+  return (
+    <div
+      className={\`fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-500 \${gone ? "opacity-0 pointer-events-none" : "opacity-100"}\`}
+      aria-hidden="true"
+    >
+      <p className="text-[11px] tracking-[0.4em] uppercase animate-pulse">{word}</p>
+    </div>
+  );
+}
+`,
+  },
+
+  magnetic: {
+    description: "Wrapper that pulls its child toward the cursor (magnetic hover)",
+    file: "Magnetic.tsx",
+    render: () => `"use client";
+
+import { useRef, type ReactNode, type MouseEvent } from "react";
+
+interface MagneticProps {
+  children: ReactNode;
+  strength?: number;
+  className?: string;
+}
+
+export default function Magnetic({ children, strength = 0.35, className = "" }: MagneticProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const onMove = (e: MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - (r.left + r.width / 2);
+    const y = e.clientY - (r.top + r.height / 2);
+    el.style.transform = \`translate(\${x * strength}px, \${y * strength}px)\`;
+  };
+  const onLeave = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)";
+    el.style.transform = "translate(0, 0)";
+    setTimeout(() => { if (ref.current) ref.current.style.transition = ""; }, 500);
+  };
+
+  return (
+    <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave} className={\`inline-block \${className}\`}>
+      {children}
+    </div>
+  );
+}
+`,
+  },
 };

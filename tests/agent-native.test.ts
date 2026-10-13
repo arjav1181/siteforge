@@ -54,7 +54,7 @@ describe("--json mode", () => {
 describe("completions", () => {
   it.each(["bash", "zsh", "fish"])("%s mentions every command", (shell) => {
     const out = renderCompletion(shell);
-    for (const c of ["video", "add", "fx", "3d", "record", "audit", "ship", "skills", "assets", "agents", "mcp", "completion", "doctor", "update"]) {
+    for (const c of ["video", "add", "fx", "3d", "record", "audit", "ship", "skills", "assets", "dewatermark", "agents", "mcp", "completion", "doctor", "update"]) {
       expect(out, `${shell}:${c}`).toContain(c);
     }
   });

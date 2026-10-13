@@ -11,7 +11,7 @@ Usage:
   siteforge completion fish > ~/.config/fish/completions/siteforge.fish
 `;
 
-const COMMANDS = "init video add fx 3d record audit ship skills assets agents mcp completion doctor update help";
+const COMMANDS = "init video add fx 3d record audit ship skills assets dewatermark agents mcp completion doctor update help";
 
 const FLAGS: Record<string, string> = {
   video: "--fps --width --height --name --quality --pm --no-upscale --no-install --no-build --help",
@@ -26,6 +26,7 @@ const FLAGS: Record<string, string> = {
   mcp: "--help",
   completion: "--help",
   assets: "--format --quality --max-width --dry-run --help",
+  dewatermark: "--box --auto --out --format --quality --no-open --yes --help",
   init: "--video --dir --fps --sections --fx --help",
 };
 
@@ -71,7 +72,7 @@ _siteforge() {
     'fx:Add an effect' '3d:Add a 3D scene' 'record:Record a demo'
     'audit:Audit a page' 'ship:Commit and push' 'skills:Agent skills'
     'agents:Write AGENTS.md' 'mcp:Serve MCP tools' 'completion:Shell completion'
-    'assets:Optimize images' 'doctor:Check machine' 'update:Self-update'
+    'assets:Optimize images' 'dewatermark:Remove watermarks' 'doctor:Check machine' 'update:Self-update'
   )
   _arguments -C '1: :->cmd' '*:: :->args'
   case $state in
@@ -88,7 +89,7 @@ _siteforge
 `;
     case "fish":
       return `# siteforge fish completion
-set -l commands init video add fx 3d record audit ship skills assets agents mcp completion doctor update help
+set -l commands init video add fx 3d record audit ship skills assets dewatermark agents mcp completion doctor update help
 complete -c siteforge -f -n __fish_use_subcommand -a "$commands"
 complete -c siteforge -f -n '__fish_seen_subcommand_from add' -a "${ADD_NAMES}"
 complete -c siteforge -f -n '__fish_seen_subcommand_from fx' -a "${FX_NAMES}"

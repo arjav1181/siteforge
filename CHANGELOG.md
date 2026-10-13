@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.5.0] — 2026-10-12
+
+### Added
+- `siteforge dewatermark`: solves watermarks out of images, frame directories
+  and video by relaxing ∇²u = 0 from the surrounding pixels, coarse-to-fine —
+  it reconstructs the background rather than blurring over it
+  - browser box picker (drag, copy coordinates, paste back) plus an ASCII
+    preview shown before every run
+  - one `--box` covers a whole directory: re-expressed per file for that file's
+    own resolution, so a hero and its thumbnail are both solved from one
+    measurement
+  - never overwrites — `<name>.clean.png` beside the source, `<dir>-clean/` for
+    a directory, `<name>.clean.mp4` for video (audio copied, not dropped)
+  - keeps source filename and format, so existing `<img src>` references
+    resolve against the cleaned copy
+  - reports `marked` / `residual` / `adjusted` separately, because "a mark was
+    there" is not the same claim as "the mark is gone"
+  - `remove_watermark` MCP tool
+  - `dewatermark` agent skill, docs/dewatermark.md, completions (bash/zsh/fish)
+
+### Changed
+- `src/log.ts` exports `isJsonMode()` so commands that would prompt can stay
+  non-blocking under `--json`
+
 ## [1.4.0] — 2026-09-06
 
 ### Added

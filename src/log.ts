@@ -13,6 +13,11 @@ export function setJsonMode(v: boolean): void {
   jsonMode = v;
 }
 
+/** Commands that would otherwise prompt use this to stay non-blocking. */
+export function isJsonMode(): boolean {
+  return jsonMode;
+}
+
 const out = () => (jsonMode ? process.stderr : process.stdout);
 
 export const log = {

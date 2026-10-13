@@ -8,6 +8,7 @@ import { parseAuditArgs, runAudit, AUDIT_HELP } from "./audit/command.js";
 import { parseShipArgs, runShip, SHIP_HELP } from "./ship/command.js";
 import { parseSkillsArgs, runSkills, SKILLS_HELP } from "./skills/command.js";
 import { parseAssetsArgs, runAssets, ASSETS_HELP } from "./assets/command.js";
+import { parseDewatermarkArgs, runDewatermark, DEWATERMARK_HELP } from "./dewatermark/command.js";
 import { parseDemoArgs, runDemo, DEMO_HELP } from "./demo/command.js";
 import { parseRunArgs, runScriptCmd, RUN_HELP } from "./scripts/command.js";
 import { parseServeArgs, runServe, SERVE_HELP } from "./serve/command.js";
@@ -41,6 +42,7 @@ Commands:
   ship      Commit, create the GitHub repo, and push
   skills    List/install agent skills for this toolkit
   assets    Batch-compress images in a directory
+  dewatermark  Solve watermarks out of images, frame dirs, video
   agents    Detect stack + write AGENTS.md conventions
   mcp       Serve tools to AI agents over MCP (stdio)
   completion  Print shell tab-completion script
@@ -56,6 +58,7 @@ Examples:
   siteforge fx cursor
   siteforge record https://my-site.vercel.app --out demo.mp4
   siteforge audit http://localhost:3000
+  siteforge dewatermark public --box=1600,880,180,180
   siteforge ship --repo my-site
 
 Docs: https://github.com/arjav1181/siteforge
@@ -158,6 +161,17 @@ async function main(): Promise<void> {
       case "assets":
         if (wantsHelp) { process.stdout.write(ASSETS_HELP); return; }
         emit(await runAssets(parseAssetsArgs(args)));
+        return;
+      case "dewatermark":
+        if (wantsHelp) { process.stdout.write(DEWATERMARK_HELP); return; }
+        {
+          const { ask, close } = createAsk();
+          try {
+            emit(await runDewatermark(ask, parseDewatermarkArgs(args)));
+          } finally {
+            close();
+          }
+        }
         return;
       case "doctor":
         if (wantsHelp) { process.stdout.write(DOCTOR_HELP); return; }

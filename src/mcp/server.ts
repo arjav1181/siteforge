@@ -8,10 +8,17 @@ import { runAudit } from "../audit/command.js";
 import { runSkills, AGENTS } from "../skills/command.js";
 import { runDoctor } from "../doctor/command.js";
 import { runShot } from "../shot/command.js";
+import { runDewatermark, parseDewatermarkArgs } from "../dewatermark/command.js";
 import { setJsonMode } from "../log.js";
 import { VERSION } from "../version.js";
 
 const DEFAULT_DIR = "src/components";
+
+/** Stands in for the interactive ask: MCP calls are never a TTY, and the tool
+ *  always passes --box, so no prompt is ever reached. */
+const noAsk = async () => {
+  throw new Error("remove_watermark needs an explicit --box; this call did not provide one");
+};
 
 function text(data: unknown): { content: { type: "text"; text: string }[] } {
   return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 2).slice(0, 20000) }] };
@@ -120,6 +127,27 @@ export function buildServer(): McpServer {
     async ({ url, out, fullPage }) => {
       try {
         return text(await runShot({ url, out, width: 1280, height: 800, full: fullPage ?? false, wait: 1200, browser: null }));
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.tool(
+    "remove_watermark",
+    "Solve a watermark out of an image or a directory of images (Laplace inpainting, not a blur). Never overwrites: writes <name>.clean.png beside the source, or <dir>-clean/. Always report the returned residual count — non-zero means the mark did not come out.",
+    {
+      path: z.string().describe("Image file, or a directory of images"),
+      box: z.string().describe('Area to solve as "x,y,w,h", in the first image pixels'),
+      format: z.string().optional().describe("keep | webp | jpg (default keep)"),
+      quality: z.number().optional().describe("1-100 (default 82)"),
+    },
+    async ({ path: p, box, format, quality }) => {
+      try {
+        const argv = [p, `--box=${box}`, "--yes"];
+        if (format) argv.push("--format", format);
+        if (quality) argv.push("--quality", String(quality));
+        return text(await runDewatermark(noAsk, parseDewatermarkArgs(argv)));
       } catch (e) {
         return fail(e);
       }

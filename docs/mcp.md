@@ -7,8 +7,14 @@ siteforge mcp
 ```
 
 Tools: `add_section`, `add_effect`, `add_3d_scene`, `audit_page`,
-`install_skills`, `check_env`. Results return as JSON text (truncated at
-20KB). Human logs go to stderr so stdout stays a clean JSON-RPC channel.
+`install_skills`, `take_screenshot`, `remove_watermark`, `check_env`. Results
+return as JSON text (truncated at 20KB). Human logs go to stderr so stdout
+stays a clean JSON-RPC channel.
+
+`remove_watermark` takes a `path` (image or directory) and a required
+`box` of `"x,y,w,h"`, and returns the run summary. Always check `residual`
+is `0` and `failures` is empty before reporting an asset as clean — see
+[dewatermark.md](dewatermark.md).
 
 ## Claude Code
 

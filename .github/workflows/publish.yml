@@ -62,14 +62,20 @@ jobs:
       - name: The tag must match the version
         # Publishing 1.7.0 from a commit labelled v1.6.0 is the kind of thing
         # you only notice six months later.
+        #
+        # Gated on REF_TYPE, not on the name being non-empty: a manual
+        # workflow_dispatch run sets GITHUB_REF_NAME to the *branch*, so
+        # comparing it unconditionally fails every hand-run rehearsal.
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          VERSION="${{ steps.pkg.outputs.version }}"
-          if [ -n "$TAG" ] && [ "$TAG" != "" ] && [ "$TAG" != "v$VERSION" ]; then
-            echo "::error::tag $TAG does not match package.json version $VERSION"
-            exit 1
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            TAG="$GITHUB_REF_NAME"
+            VERSION="${{ steps.pkg.outputs.version }}"
+            if [ "$TAG" != "v$VERSION" ]; then
+              echo "::error::tag $TAG does not match package.json version $VERSION"
+              exit 1
+            fi
           fi
-          echo "publishing ${{ steps.pkg.outputs.name }}@$VERSION"
+          echo "publishing ${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}"
 
       - name: Skip if this version is already on npm
         id: check

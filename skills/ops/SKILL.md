@@ -1,6 +1,6 @@
 ---
 name: siteforge-ops
-description: Toolkit maintenance via `siteforge skills|assets|dewatermark|doctor|update|agents|completion|mcp`: install agent skills (Claude/Cursor/OpenCode/Codex/Aider/Pi), batch-compress images, remove watermarks from assets, env doctor, self-update, AGENTS.md generation, shell completion, MCP server. Use for setup, hygiene, and agent wiring.
+description: Toolkit maintenance via `siteforge skills|assets|dewatermark|agent|doctor|update|agents|completion|mcp`: install agent skills (Claude/Cursor/OpenCode/Codex/Aider/Pi), batch-compress images, remove watermarks from assets, hand work to a coding agent, env doctor, self-update, AGENTS.md generation, shell completion, MCP server. Use for setup, hygiene, and agent wiring.
 ---
 
 # siteforge ops
@@ -9,6 +9,7 @@ description: Toolkit maintenance via `siteforge skills|assets|dewatermark|doctor
 siteforge skills install [--agent claude,cursor,opencode,codex,aider,pi] [--global] [--oss]
 siteforge assets public --dry-run        # then without --dry-run to apply
 siteforge dewatermark public --box=x,y,w,h  # watermark removal, see dewatermark skill
+siteforge agent "<task>" --agent claude   # hand work to a coding agent, see agent skill
 siteforge doctor                          # env report per command
 siteforge update                          # latest published version
 siteforge demo [dir]                      # instant sample site, no files needed
@@ -30,5 +31,6 @@ when any command complains about its environment.
 - `siteforge skills install --agent claude --global`
 - `siteforge assets public --dry-run` then apply
 - `siteforge dewatermark public --box=1600,880,180,180 --yes`
+- `siteforge agent "add a pricing section to the hero"`
 - `siteforge agents init` writes repo conventions for agents
 - Anything odd: `siteforge doctor` first

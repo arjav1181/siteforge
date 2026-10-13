@@ -8,7 +8,6 @@ import { FX } from "../src/fx/effects.js";
 import { runFx } from "../src/fx/command.js";
 import { PRESETS } from "../src/three/presets.js";
 import { runThree } from "../src/three/command.js";
-import { parseSelection } from "../src/wizard.js";
 import { parseInitArgs } from "../src/wizard.js";
 import { parseThreeArgs } from "../src/three/command.js";
 import { parseAssetsArgs, runAssets } from "../src/assets/command.js";
@@ -73,12 +72,6 @@ describe("3d presets", () => {
 });
 
 describe("wizard helpers", () => {
-  it("parseSelection handles lists + ranges", () => {
-    expect(parseSelection("1,3", 5)).toEqual([0, 2]);
-    expect(parseSelection("2-4", 5)).toEqual([1, 2, 3]);
-    expect(parseSelection("0,99,abc", 3)).toEqual([0, 2]);
-    expect(parseSelection("", 3)).toEqual([]);
-  });
   it("parseInitArgs", () => {
     const o = parseInitArgs(["--video", "a.mp4", "--dir", "out", "--sections", "hero,work", "--fx", "fx:cursor"]);
     expect(o).toMatchObject({ video: "a.mp4", dir: "out", sections: ["hero", "work"], fx: ["fx:cursor"] });

@@ -1,46 +1,54 @@
-const RESET = "\x1b[0m";
-const BOLD = "\x1b[1m";
-const DIM = "\x1b[2m";
-const CYAN = "\x1b[36m";
-const GREEN = "\x1b[32m";
-const YELLOW = "\x1b[33m";
-const RED = "\x1b[31m";
+/**
+ * Log primitives.
+ *
+ * The API every command already uses, reimplemented on the detected terminal
+ * capabilities. What changed versus the old version: real status glyphs, a
+ * colour palette that respects NO_COLOR/FORCE_COLOR/TERM=dumb, errors always on
+ * stderr, and JSON mode able to suppress decoration entirely instead of just
+ * moving it.
+ *
+ * For richer output — spinners, live task lists, panels, tables — reach for
+ * `ui/render`. For prompts, `ui/prompt`.
+ */
+import { style, glyph } from "./ui/color.js";
+import { out, err, setJsonMode, isJsonMode } from "./ui/stream.js";
 
-let jsonMode = false;
+export { setJsonMode, isJsonMode };
 
-/** In JSON mode, all human logs go to stderr; only the result JSON hits stdout. */
-export function setJsonMode(v: boolean): void {
-  jsonMode = v;
-}
-
-/** Commands that would otherwise prompt use this to stay non-blocking. */
-export function isJsonMode(): boolean {
-  return jsonMode;
-}
-
-const out = () => (jsonMode ? process.stderr : process.stdout);
+/** Indentation shared by every human-facing line, so output reads as one column. */
+const INDENT = "  ";
 
 export const log = {
+  /** Starting something. Cyan, matches the `▸` convention people already know. */
   step(msg: string) {
-    out().write(`${CYAN}▸${RESET} ${msg}\n`);
+    out().write(`${INDENT}${style.cyan(glyph.arrow)} ${msg}\n`);
   },
+  /** Finished, successfully. */
   ok(msg: string) {
-    out().write(`${GREEN}✓${RESET} ${msg}\n`);
+    out().write(`${INDENT}${style.green(glyph.success)} ${msg}\n`);
   },
+  /** Worth knowing, not fatal. */
   warn(msg: string) {
-    out().write(`${YELLOW}⚠${RESET} ${msg}\n`);
+    out().write(`${INDENT}${style.yellow(glyph.warn)} ${msg}\n`);
   },
+  /** Failed. Always stderr, so `| head` does not swallow it. */
   err(msg: string) {
-    process.stderr.write(`${RED}✗${RESET} ${msg}\n`);
+    err().write(`${INDENT}${style.red(glyph.fail)} ${msg}\n`);
+  },
+  /** Detail that should not compete with the message above it. */
+  dim(msg: string) {
+    out().write(`${INDENT}${style.gray(msg)}\n`);
+  },
+  /** Emphasised line, used for headings. */
+  title(msg: string) {
+    out().write(`${style.bold(msg)}\n`);
+  },
+  /** Indented secondary text. */
+  info(msg: string) {
+    out().write(`${INDENT}${msg}\n`);
   },
   blank() {
     out().write("\n");
-  },
-  title(msg: string) {
-    out().write(`${BOLD}${msg}${RESET}\n`);
-  },
-  dim(msg: string) {
-    out().write(`${DIM}${msg}${RESET}\n`);
   },
   /** Unstyled write, routed like everything else (stderr in JSON mode). */
   raw(msg: string) {
@@ -48,12 +56,22 @@ export const log = {
   },
 };
 
-/** Single-line progress counter (overwrites itself). Call done() to finish the line. */
+/** Human-readable byte size lives in util.ts — one definition, imported everywhere. */
+
+/**
+ * A single-line progress counter that overwrites itself.
+ *
+ * Collapses to nothing when the output is not a terminal: a CI log full of
+ * `\r` sequences is unreadable, and the final summary line already carries the
+ * result.
+ */
 export function progress(total: number, label: string) {
   let current = 0;
-  const stream = () => (jsonMode ? process.stderr : process.stdout);
+  const stream = () => (isJsonMode() ? process.stderr : process.stdout);
+  const animate = Boolean(stream().isTTY) && !isJsonMode();
   const render = () => {
-    stream().write(`\r  ${current}/${total} ${label}`);
+    if (!animate) return;
+    stream().write(`\r  ${style.gray(`${current}/${total}`)} ${label}`);
   };
   return {
     tick(n = 1) {
@@ -64,10 +82,10 @@ export function progress(total: number, label: string) {
       current = Math.min(total, Math.max(0, n));
       render();
     },
-    done() {
+    done(msg?: string) {
       current = total;
-      render();
-      stream().write("\n");
+      if (animate) stream().write("\r\x1b[2K");
+      if (msg) stream().write(`  ${msg}\n`);
     },
   };
 }

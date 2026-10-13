@@ -9,6 +9,7 @@ import { runSkills, AGENTS } from "../skills/command.js";
 import { runDoctor } from "../doctor/command.js";
 import { runShot } from "../shot/command.js";
 import { runDewatermark, parseDewatermarkArgs } from "../dewatermark/command.js";
+import { runAgent, parseAgentCmdArgs } from "../agent/command.js";
 import { setJsonMode } from "../log.js";
 import { VERSION } from "../version.js";
 
@@ -148,6 +149,33 @@ export function buildServer(): McpServer {
         if (format) argv.push("--format", format);
         if (quality) argv.push("--quality", String(quality));
         return text(await runDewatermark(noAsk, parseDewatermarkArgs(argv)));
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.tool(
+    "hand_off_to_agent",
+    "Hand a coding task to the agent on this machine (Claude Code, OpenCode or Codex preferred), briefing it on the SiteForge toolkit and the project conventions so it uses the CLI instead of reinventing it. Use write access unless the task is analysis-only.",
+    {
+      task: z.string().describe("The task, in plain language"),
+      agent: z.string().optional().describe("claude | opencode | codex | gemini | aider | cursor | pi"),
+      dir: z.string().optional().describe("Project directory"),
+      model: z.string().optional(),
+      readOnly: z.boolean().optional().describe("Plan only; the agent may not create or edit files"),
+    },
+    async ({ task, agent, dir, model, readOnly }) => {
+      try {
+        const argv = ["run", task];
+        if (agent) argv.push("--agent", agent);
+        if (dir) argv.push("--dir", dir);
+        if (model) argv.push("--model", model);
+        if (readOnly) argv.push("--read-only");
+        // No live rendering over stdio: MCP owns that channel.
+        argv.push("--no-stream");
+        const r = await runAgent(parseAgentCmdArgs(argv));
+        return text({ ...r, raw: undefined });
       } catch (e) {
         return fail(e);
       }

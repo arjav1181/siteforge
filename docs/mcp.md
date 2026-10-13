@@ -7,14 +7,19 @@ siteforge mcp
 ```
 
 Tools: `add_section`, `add_effect`, `add_3d_scene`, `audit_page`,
-`install_skills`, `take_screenshot`, `remove_watermark`, `check_env`. Results
-return as JSON text (truncated at 20KB). Human logs go to stderr so stdout
-stays a clean JSON-RPC channel.
+`install_skills`, `take_screenshot`, `remove_watermark`, `hand_off_to_agent`,
+`check_env`. Results return as JSON text (truncated at 20KB). Human logs go to
+stderr so stdout stays a clean JSON-RPC channel.
 
 `remove_watermark` takes a `path` (image or directory) and a required
 `box` of `"x,y,w,h"`, and returns the run summary. Always check `residual`
 is `0` and `failures` is empty before reporting an asset as clean — see
 [dewatermark.md](dewatermark.md).
+
+`hand_off_to_agent` takes a `task` and hands it to the coding agent on the
+machine (Claude Code, OpenCode or Codex preferred), briefed on the toolkit and
+the project conventions. Pass `readOnly: true` when the task is analysis only —
+the agent will not be able to edit files. See [agent.md](agent.md).
 
 ## Claude Code
 

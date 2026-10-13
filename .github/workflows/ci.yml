@@ -9,11 +9,16 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
         with:
-          node-version: 20
+          # The OSS-skill tests count what the submodules contribute. Without
+          # this the runner checks out empty directories and two tests fail on
+          # every single run.
+          submodules: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
 
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
@@ -25,11 +30,13 @@ jobs:
       - name: Typecheck
         run: npm run check
 
-      - name: Tests (unit + e2e)
-        run: npm test
-
+      # Before the tests, not after: the CLI tests spawn dist/cli.js, so
+      # building last meant they tested a binary that did not exist yet.
       - name: Build
         run: npm run build
+
+      - name: Tests (unit + e2e)
+        run: npm test
 
       - name: Smoke test CLI
         run: |
@@ -41,7 +48,7 @@ jobs:
   shellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Lint install.sh
         run: |
           sudo apt-get update && sudo apt-get install -y shellcheck

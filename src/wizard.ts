@@ -13,6 +13,9 @@ import { runShip } from "./ship/command.js";
 import { runSkills, AGENTS } from "./skills/command.js";
 import { runDoctor } from "./doctor/command.js";
 import { log } from "./log.js";
+import { select, multiselect } from "./ui/prompt.js";
+import { banner } from "./ui/render.js";
+import { VERSION } from "./version.js";
 
 export type Ask = (question: string, def?: string) => Promise<string>;
 
@@ -30,72 +33,90 @@ export function createAsk(): { ask: Ask; close: () => void } {
   return { ask, close: () => rl.close() };
 }
 
-/** "1,3-4" → zero-based indices clamped to [0, max). Pure — unit tested. */
-export function parseSelection(input: string, max: number): number[] {
-  const out = new Set<number>();
-  for (const part of input.split(",")) {
-    const range = part.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);
-    if (!range) continue;
-    const a = Math.max(1, Math.min(max, Number(range[1])));
-    const b = range[2] ? Math.max(1, Math.min(max, Number(range[2]))) : a;
-    for (let i = Math.min(a, b); i <= Math.max(a, b); i++) out.add(i - 1);
-  }
-  return [...out].sort((x, y) => x - y);
+/**
+ * Pick any number of entries, returning their names.
+ *
+ * Thin wrapper so the call sites read as intent ("pick sections") rather than
+ * as index arithmetic.
+ */
+async function pickList(title: string, names: string[]): Promise<string[]> {
+  const picked = await multiselect(title, names.map((n) => ({ label: n, value: n })));
+  return picked.map((i) => names[i]);
 }
 
-async function pickList(ask: Ask, title: string, names: string[]): Promise<string[]> {
-  log.dim(`  ${title} (comma-separated numbers, empty = skip):`);
-  names.forEach((n, i) => log.dim(`    ${i + 1}) ${n}`));
-  const ans = await ask("  Pick", "");
-  if (!ans) return [];
-  return parseSelection(ans, names.length).map((i) => names[i]);
-}
+/**
+ * The front door.
+ *
+ * Menu items carry their own explanation as a hint, so the menu explains
+ * itself instead of making the user remember what `3d` does. Navigation is
+ * arrow keys on a terminal and numbered lines everywhere else.
+ */
+const MENU: { label: string; hint: string }[] = [
+  { label: "New site", hint: "video background + sections + FX, guided" },
+  { label: "Hand it to an agent", hint: "Claude Code, OpenCode or Codex — with the toolkit briefed" },
+  { label: "Add section", hint: "hero, navbar, work, pricing, faq…" },
+  { label: "Add effect", hint: "cursor, badge, marquee, 3D scene…" },
+  { label: "Record demo", hint: "page → MP4 + poster" },
+  { label: "Audit site", hint: "overflow, meta, alt, console, weight" },
+  { label: "Ship it", hint: "commit + GitHub + push" },
+  { label: "Install skills", hint: "agent skills for this toolkit" },
+  { label: "Quick demo", hint: "sample site, no files needed" },
+  { label: "Serve folder", hint: "static preview server" },
+  { label: "Screenshot", hint: "page → PNG" },
+  { label: "Run script", hint: "everyday helpers (bigfiles, loc…)" },
+  { label: "Doctor", hint: "check this machine" },
+  { label: "Exit", hint: "" },
+];
 
-const MENU = `
-  What are we forging today?
-    1) New site        video background + sections + FX, guided
-    2) Add section     hero, navbar, work, pricing, faq…
-    3) Add effect      cursor, badge, marquee, 3D scene…
-    4) Record demo     page → MP4 + poster
-    5) Audit site      overflow, meta, alt, console, weight
-    6) Ship it         commit + GitHub + push
-    7) Install skills  agent skills for this toolkit
-    8) Doctor          check this machine
-    9) Quick demo      sample site, no files needed
-    10) Serve folder   static preview server
-    11) Screenshot     page → PNG
-    12) Run script     everyday helpers (bigfiles, loc…)
-    0) Exit
-`;
+const EXIT = MENU.length - 1;
 
 export async function runWizard(ask: Ask): Promise<void> {
-  log.blank();
-  log.title("  ▲ siteforge");
+  banner(`siteforge v${VERSION}`, "forge killer interactive sites");
   for (;;) {
-    process.stdout.write(MENU);
-    const choice = await ask("  Choice", "0");
+    const choice = await select(
+      "What are we forging today?",
+      MENU.map((m) => ({ label: m.label, value: m.label, hint: m.hint || undefined })),
+    );
     log.blank();
+    if (choice === -1 || choice === EXIT) {
+      log.dim("Later!");
+      log.blank();
+      return;
+    }
+
     switch (choice) {
-      case "1":
+      case 0:
         await runInit(ask);
         break;
-      case "2": {
+      case 1: {
+        const task = await ask("  What should it build?", "");
+        if (!task) {
+          log.warn("Nothing to hand over.");
+          break;
+        }
+        const { runAgent, parseAgentCmdArgs } = await import("./agent/command.js");
+        await runAgent(parseAgentCmdArgs([task]));
+        break;
+      }
+      case 2: {
         const names = Object.keys(SECTIONS);
-        for (const n of await pickList(ask, "Sections:", names)) {
-          await runAdd({ section: n, dir: "src/components", list: false });
+        for (const i of await multiselect("Sections:", names.map((n) => ({ label: n, value: n })))) {
+          await runAdd({ section: names[i], dir: "src/components", list: false });
         }
         break;
       }
-      case "3": {
-        const fxNames = Object.keys(FX).map((n) => `fx:${n}`);
-        const tdNames = Object.keys(PRESETS).map((n) => `3d:${n}`);
-        for (const n of await pickList(ask, "Effects & 3D:", [...fxNames, ...tdNames])) {
+      case 3: {
+        const fxNames = Object.keys(FX);
+        const tdNames = Object.keys(PRESETS);
+        const opts = [...fxNames.map((n) => ({ label: n, value: `fx:${n}` })), ...tdNames.map((n) => ({ label: `3d:${n}`, value: `3d:${n}` }))];
+        for (const i of await multiselect("Effects & 3D:", opts)) {
+          const n = opts[i].value;
           if (n.startsWith("fx:")) await runFx({ effect: n.slice(3), dir: "src/components", list: false, opts: {} });
           else await runThree({ preset: n.slice(3), dir: "src/components", list: false });
         }
         break;
       }
-      case "4": {
+      case 4: {
         const url = await ask("  URL", "http://localhost:3000");
         const out = await ask("  Output MP4", "demo.mp4");
         await runRecord({
@@ -104,44 +125,42 @@ export async function runWizard(ask: Ask): Promise<void> {
         });
         break;
       }
-      case "5": {
+      case 5: {
         const url = await ask("  URL", "http://localhost:3000");
         const { clean } = await runAudit({ url, widths: [375, 768, 1440], budgetKb: 500, browser: null, fix: false });
         if (!clean) log.warn("Fix the errors above, then re-run audit.");
         break;
       }
-      case "6":
+      case 6:
         await runShip({ repo: null, isPrivate: false, message: await ask("  Commit message", "ship it"), push: true });
         break;
-      case "7": {
-        const picked = await pickList(ask, "Agents:", AGENTS);
+      case 7: {
+        const picked = await multiselect("Agents:", AGENTS.map((a) => ({ label: a, value: a })));
         const oss = (await ask("  Include OSS collections? (y/N)", "n")).toLowerCase().startsWith("y");
-        await runSkills({ action: "install", agents: picked.length ? picked : AGENTS, oss, global: (await ask("  Global? (y/N)", "n")).toLowerCase().startsWith("y") });
+        const agents = picked.length ? picked.map((i) => AGENTS[i]) : AGENTS;
+        await runSkills({ action: "install", agents, oss, global: (await ask("  Global? (y/N)", "n")).toLowerCase().startsWith("y") });
         break;
       }
-      case "8":
-        await runDoctor();
-        break;
-      case "9": {
+      case 8: {
         const { runDemo } = await import("./demo/command.js");
         await runDemo({ dir: "./siteforge-demo", fps: 24 });
         break;
       }
-      case "10": {
+      case 9: {
         const { runServe } = await import("./serve/command.js");
         const dir = await ask("  Directory", "public");
         const port = Number(await ask("  Port", "8000"));
         await runServe({ dir, port, spa: false });
         break;
       }
-      case "11": {
+      case 10: {
         const { runShot } = await import("./shot/command.js");
         const url = await ask("  URL", "http://localhost:3000");
         const out = await ask("  Output PNG", "shot.png");
         await runShot({ url, out, width: 1280, height: 800, full: false, wait: 1200, browser: null });
         break;
       }
-      case "12": {
+      case 11: {
         const { listScripts, runScriptCmd } = await import("./scripts/command.js");
         log.dim(`  Scripts: ${listScripts().join(", ")}`);
         const name = await ask("  Script", "");
@@ -150,10 +169,9 @@ export async function runWizard(ask: Ask): Promise<void> {
         await runScriptCmd({ name, list: false, args: extra ? extra.split(/\s+/) : [] });
         break;
       }
-      case "0":
-      default:
-        log.dim("  Later!");
-        return;
+      case 12:
+        await runDoctor();
+        break;
     }
     log.blank();
   }
@@ -250,11 +268,11 @@ export async function runInit(ask: Ask, flags: InitOptions = { video: null, dir:
   });
 
   const sectionNames = Object.keys(SECTIONS);
-  const pickedSections = flags.sections ?? (await pickList(ask, "Sections:", sectionNames));
+  const pickedSections = flags.sections ?? (await pickList("Sections:", sectionNames));
 
   const fxNames = Object.keys(FX).map((n) => `fx:${n}`);
   const tdNames = Object.keys(PRESETS).map((n) => `3d:${n}`);
-  const pickedFx = flags.fx ?? (await pickList(ask, "Effects & 3D:", [...fxNames, ...tdNames]));
+  const pickedFx = flags.fx ?? (await pickList("Effects & 3D:", [...fxNames, ...tdNames]));
 
   const { composeSite } = await import("./video/compose.js");
   await composeSite(out, {

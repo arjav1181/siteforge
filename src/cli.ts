@@ -9,6 +9,7 @@ import { parseShipArgs, runShip, SHIP_HELP } from "./ship/command.js";
 import { parseSkillsArgs, runSkills, SKILLS_HELP } from "./skills/command.js";
 import { parseAssetsArgs, runAssets, ASSETS_HELP } from "./assets/command.js";
 import { parseDewatermarkArgs, runDewatermark, DEWATERMARK_HELP } from "./dewatermark/command.js";
+import { parseAgentCmdArgs, runAgent, AGENT_HELP } from "./agent/command.js";
 import { parseDemoArgs, runDemo, DEMO_HELP } from "./demo/command.js";
 import { parseRunArgs, runScriptCmd, RUN_HELP } from "./scripts/command.js";
 import { parseServeArgs, runServe, SERVE_HELP } from "./serve/command.js";
@@ -43,6 +44,7 @@ Commands:
   skills    List/install agent skills for this toolkit
   assets    Batch-compress images in a directory
   dewatermark  Solve watermarks out of images, frame dirs, video
+  agent       Hand work to Claude Code, OpenCode, Codex (or others)
   agents    Detect stack + write AGENTS.md conventions
   mcp       Serve tools to AI agents over MCP (stdio)
   completion  Print shell tab-completion script
@@ -81,6 +83,13 @@ async function main(): Promise<void> {
     }
     if (cmd === "-V" || cmd === "--version") {
       process.stdout.write(`siteforge v${VERSION}\n`);
+      return;
+    }
+    // `--help` with no command is the same request as `help`. It used to fall
+    // through to the unknown-command branch, which printed the same text and
+    // then exited 1 — enough to fail a CI smoke step that was otherwise fine.
+    if (cmd === "--help" || cmd === "-h") {
+      process.stdout.write(HELP);
       return;
     }
     const wantsHelp = rest.includes("--help") || rest.includes("-h");
@@ -171,6 +180,15 @@ async function main(): Promise<void> {
           } finally {
             close();
           }
+        }
+        return;
+      case "agent":
+        if (wantsHelp) { process.stdout.write(AGENT_HELP); return; }
+        {
+          const r = await runAgent(parseAgentCmdArgs(args));
+          emit(r);
+          // A failed handoff is a failed command, not just a log line.
+          if (r.code !== 0) process.exitCode = 1;
         }
         return;
       case "doctor":

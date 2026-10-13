@@ -3,6 +3,35 @@
 All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.6.0] — 2026-10-13
+
+### Added
+- `siteforge agent "<task>"`: hand a job to the user's coding agent. Picks an
+  agent (Claude Code, OpenCode or Codex first), writes a briefing containing
+  the toolkit commands in build order, the installed skills, the repo it can see
+  and the house style, then opens that agent's session with the task loaded
+  - interactive is the default: `claude "<briefing>"`, `opencode --prompt …`,
+    `codex "<briefing>"` — so you pick the conversation up from there
+  - `--headless` for one-shot runs in CI; `--read-only` for each agent's own
+    plan mode; `--dry-run` shows the exact command
+  - every invocation read off the installed CLI's own `--help`, asserted in
+    tests. Never emits `bypassPermissions` / `--yolo` / `danger-full-access` —
+    it grants edit access, not the machine
+  - `hand_off_to_agent` MCP tool; `agent` agent skill; docs/agent.md
+- `src/ui/`: terminal capability detection (`NO_COLOR`, `FORCE_COLOR`,
+  `TERM=dumb`, non-TTY), braille spinners with elapsed time, live task lists,
+  wrapping panels and aligned tables
+- Arrow-key wizard menu with inline hints, replacing the numbered menu
+  (`parseSelection` removed — it was dead once multiselect landed)
+
+### Fixed
+- CI runs `build` before `test`, and checks out submodules. Both were wrong, so
+  six tests had been failing on every run of `main` since v1.4.0
+- `siteforge --help` printed help and exited 1; the unknown-command branch
+  swallowed it, which failed the CI smoke step
+- `siteforge agent` no longer hangs when an agent binary disappears between
+  detection and spawn — the spawn error was racing a pipe that never closed
+
 ## [1.5.0] — 2026-10-12
 
 ### Added

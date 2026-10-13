@@ -31,7 +31,7 @@ with no args for the interactive wizard, `siteforge doctor` to check your box.
 | `siteforge record <url> --out demo.mp4` | 30fps demo video + poster of any page | [docs/record.md](docs/record.md) |
 | `siteforge audit <url>` | Overflow culprits, meta/alt/console/weight | [docs/audit.md](docs/audit.md) |
 | `siteforge ship` | Commit → GitHub repo → push | [docs/ship.md](docs/ship.md) |
-| `siteforge skills install --oss` | 10 handmade + 33 OSS skills (submodules) for Claude/Cursor/OpenCode/Codex/Aider/Pi | [docs/ops.md](docs/ops.md) |
+| `siteforge skills install --oss` | 11 handmade + 33 OSS skills (submodules) for Claude/Cursor/OpenCode/Codex/Aider/Pi | [docs/ops.md](docs/ops.md) |
 | `siteforge run bigfiles` | Everyday scripts: bigfiles, loc, todo-sweep, json-pretty, md-toc, port-kill | [docs/ops.md](docs/ops.md) |
 | `siteforge serve public` | Static preview server | [docs/ops.md](docs/ops.md) |
 | `siteforge shot <url> --out s.png` | Page screenshots | [docs/ops.md](docs/ops.md) |
@@ -40,6 +40,7 @@ with no args for the interactive wizard, `siteforge doctor` to check your box.
 | `siteforge completion bash` | Shell tab-completion | [docs/agents.md](docs/agents.md) |
 | `siteforge assets public` | Batch-compress site images | [docs/ops.md](docs/ops.md) |
 | `siteforge dewatermark public` | Solve watermarks out of images, frame dirs, video | [docs/dewatermark.md](docs/dewatermark.md) |
+| `siteforge agent "build me a site"` | Hand the job to Claude Code, OpenCode or Codex | [docs/agent.md](docs/agent.md) |
 | `siteforge doctor` / `update` | Env check / self-update | [docs/ops.md](docs/ops.md) |
 
 ```bash
@@ -50,6 +51,9 @@ cd my-site && npm run dev     # your content is already in
 siteforge record http://localhost:3000 --out demo.mp4
 siteforge audit http://localhost:3000
 siteforge ship --repo my-site
+
+# or hand the whole job to your coding agent, toolkit already briefed
+siteforge agent "build me a landing page for Ember, a coffee roastery"
 ```
 
 <video src="assets/demo.mp4" width="100%" autoplay muted loop playsinline></video>
@@ -59,16 +63,16 @@ siteforge ship --repo my-site
 ## Universal agent toolkit
 
 Two tracks: **make killer sites** (everything above) and **agent superpowers
-for all kinds of work** — 43 skills (10 handmade + OSS submodules, see
+for all kinds of work** — 44 skills (11 handmade + OSS submodules, see
 [docs/oss-skills.md](docs/oss-skills.md)), runnable scripts, MCP server,
 AGENTS.md generator, completions.
 
 ## For AI agents
 
 Drop-in skills in [`skills/`](skills/) — `video`, `add`, `fx`, `v3d`,
-`init`, `record`, `audit`, `ship`, `dewatermark`, `ops`. Install them anywhere with
-`siteforge skills install [--agent …] [--global]`. If an agent is building
-your site, point it at these first.
+`init`, `record`, `audit`, `ship`, `agent`, `dewatermark`, `ops`. Install them
+anywhere with `siteforge skills install [--agent …] [--global]`. If an agent is
+building your site, point it at these first.
 
 ## Why sites built this way look clean
 

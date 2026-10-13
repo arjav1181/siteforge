@@ -111,7 +111,10 @@ jobs:
       - name: Publish
         if: steps.check.outputs.published == 'false' && (github.event_name != 'workflow_dispatch' || inputs.publish)
         run: |
+          node --version
+          npm --version
           npm publish \
             --registry https://registry.npmjs.org \
             --access public \
-            --provenance
+            --provenance \
+            --loglevel verbose

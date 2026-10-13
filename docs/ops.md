@@ -19,4 +19,6 @@ the whole batch at each file's own resolution — see
 [dewatermark.md](dewatermark.md). `agent` hands a described job to your coding
 agent with the toolkit already briefed — see [agent.md](agent.md). `doctor`
 maps every check to the commands that need it; run it first when the
-environment complains.
+environment complains. It checks auth *state*, not just presence — a `gh` that
+is installed but signed out reports as failing, because that is exactly the
+state in which `ship` will fail.

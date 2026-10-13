@@ -150,6 +150,34 @@ describe("agent event parsing", () => {
     expect(parseAgentEvent(spec("codex"), JSON.stringify({ msg: { type: "text", content: "hello" } }))).toBe("hello");
   });
 
+  // Captured verbatim from `opencode run "Reply with exactly: ok" --format json`.
+  // Synthetic fixtures would have reproduced the parser's own wrong assumptions;
+  // these are what the CLI actually emits.
+  describe("opencode, against real captured output", () => {
+    const STEP_START =
+      '{"type":"step_start","timestamp":1791907774533,"sessionID":"ses_ec9f96395ffeYthL6N8ur86ncA","part":{"id":"prt_1","sessionID":"ses_ec9f96395ffeYthL6N8ur86ncA","messageID":"msg_1","type":"step-start"}}';
+    const TEXT =
+      '{"type":"text","timestamp":1791907774578,"sessionID":"ses_ec9f96395ffeYthL6N8ur86ncA","part":{"id":"prt_1_text-0","sessionID":"ses_ec9f96395ffeYthL6N8ur86ncA","messageID":"msg_1","type":"text","text":"ok","time":{"start":1791907773094,"end":1791907774578}}}';
+    const TOOL =
+      '{"type":"tool","part":{"type":"tool","tool":"edit","state":{"status":"running"}}}';
+
+    it("reads text out of part.text", () => {
+      expect(parseAgentEvent(spec("opencode"), TEXT)).toBe("ok");
+    });
+
+    it("stays quiet on events it has nothing to render", () => {
+      expect(parseAgentEvent(spec("opencode"), STEP_START)).toBeNull();
+    });
+
+    it("renders tool calls", () => {
+      expect(parseAgentEvent(spec("opencode"), TOOL)).toBe("⚙ edit (running)");
+    });
+
+    it("finds sessionID — camel with a capital D", () => {
+      expect(parseAgentMeta(spec("opencode"), [STEP_START, TEXT]).sessionId).toBe("ses_ec9f96395ffeYthL6N8ur86ncA");
+    });
+  });
+
   it("collects session, cost and errors", () => {
     const meta = parseAgentMeta(claude, [
       JSON.stringify({ type: "system", subtype: "init", session_id: "abc123" }),

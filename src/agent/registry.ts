@@ -154,8 +154,20 @@ export function parseAgentEvent(spec: AgentSpec, line: string): string | null {
       : null;
   }
   if (spec.id === "opencode") {
-    const t = (j.text ?? j.content ?? (j.message as { content?: unknown } | undefined)?.content) as unknown;
-    return typeof t === "string" && t.trim() ? t.trim() : null;
+    // Verified against `opencode run --format json`, which emits events shaped
+    // {type, timestamp, sessionID, part:{type, text}}. The text lives at
+    // `part.text`, not at the top level — so a parser that looks for `text` at
+    // the root renders nothing at all. Session id is `sessionID`, camel with a
+    // capital D, which no snake_case guess would have found.
+    const part = j.part as { type?: string; text?: string; tool?: string; state?: { status?: string } } | undefined;
+    if (part?.type === "text" && typeof part.text === "string" && part.text.trim()) return part.text.trim();
+    if (part?.type === "tool" && part.tool) {
+      const status = part.state?.status;
+      return `⚙ ${part.tool}${status && status !== "completed" ? ` (${status})` : ""}`;
+    }
+    // Tolerate the flat shapes some versions and wrappers emit.
+    const flat = (j.text ?? j.content) as unknown;
+    return typeof flat === "string" && flat.trim() ? flat.trim() : null;
   }
   return null;
 }
@@ -170,7 +182,7 @@ export function parseAgentMeta(spec: AgentSpec, lines: string[]): { sessionId?: 
     } catch {
       continue;
     }
-    const sid = j.session_id ?? j.sessionId ?? j.thread_id ?? (j.msg as { thread_id?: string } | undefined)?.thread_id;
+    const sid = j.session_id ?? j.sessionId ?? j.sessionID ?? j.thread_id ?? (j.msg as { thread_id?: string } | undefined)?.thread_id;
     if (typeof sid === "string") meta.sessionId = sid;
     const cost = j.total_cost_usd ?? j.cost_usd;
     if (typeof cost === "number") meta.cost = cost;

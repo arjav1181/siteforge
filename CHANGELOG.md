@@ -3,6 +3,27 @@
 All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.7.0] — 2026-10-13
+
+### Fixed
+- `siteforge agent --headless --agent opencode` returned no output and no
+  session id. OpenCode emits `{type, timestamp, sessionID, part:{type, text}}`
+  — the text lives at `part.text`, not at the root, and the session key is
+  `sessionID` with a capital D. The parser was written against a guessed shape
+  and matched neither. Caught by running it against the real CLI; the fixtures
+  are now its verbatim output
+- `siteforge doctor` checked `gh --version` under a label reading
+  "authenticated", so a signed-out `gh` looked healthy right up until a push
+  failed. It now checks auth state and says what is wrong
+- `siteforge doctor` ignored `dewatermark` and `agent` entirely, despite
+  claiming to map every check to the commands that need it
+
+### Added
+- `doctor` reports the coding agents on PATH, and how to install one if there
+  are none — the prerequisite for `siteforge agent`
+- `doctor` renders through the shared table, so it respects `NO_COLOR` and
+  lines up on narrow terminals instead of hard-coded ANSI
+
 ## [1.6.0] — 2026-10-13
 
 ### Added

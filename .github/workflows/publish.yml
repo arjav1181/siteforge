@@ -1,0 +1,111 @@
+name: Publish to npm
+
+# Tags, not branches. A tag is a deliberate act; a branch push is not. If this
+# ran on every push to main, anything that landed there — including something an
+# attacker landed — would ship to npm without anyone deciding it should.
+on:
+  push:
+    tags:
+      - "v*"
+  # Manual run, for the release you forgot to tag. Defaults to verifying
+  # everything and publishing nothing, so it is safe to click.
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Actually publish (off = verify the release path only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # GitHub-hosted runners only — npm does not accept OIDC from self-hosted.
+    #
+    # id-token:write is what mints the short-lived OIDC credential. It is
+    # scoped to this job so nothing else in the repo can mint one.
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          # Deliberately NO registry-url here. Setting it makes setup-node
+          # export GITHUB_TOKEN as NODE_AUTH_TOKEN, and npm then finds a token,
+          # uses it, and never attempts the OIDC exchange at all. The registry
+          # is passed explicitly to `npm publish` below instead.
+          package-manager-cache: false
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      # No lockfile is committed, so plain install.
+      - run: npm install --no-audit --no-fund
+
+      - name: Read name and version
+        id: pkg
+        run: |
+          node -e '
+            const p = require("./package.json");
+            console.log("name=" + p.name);
+            console.log("version=" + p.version);
+            ' >> "$GITHUB_OUTPUT"
+
+      - name: The tag must match the version
+        # Publishing 1.7.0 from a commit labelled v1.6.0 is the kind of thing
+        # you only notice six months later.
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${{ steps.pkg.outputs.version }}"
+          if [ -n "$TAG" ] && [ "$TAG" != "" ] && [ "$TAG" != "v$VERSION" ]; then
+            echo "::error::tag $TAG does not match package.json version $VERSION"
+            exit 1
+          fi
+          echo "publishing ${{ steps.pkg.outputs.name }}@$VERSION"
+
+      - name: Skip if this version is already on npm
+        id: check
+        run: |
+          if npm view "${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}" version \
+               --registry https://registry.npmjs.org > /dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Already published
+        if: steps.check.outputs.published == 'true'
+        run: |
+          echo "::notice::${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} is already on npm — nothing to do."
+
+      # The published tarball should never be the first thing to learn that a
+      # test fails, so the publish job runs them itself rather than trusting
+      # that some other workflow happened to go green.
+      - name: Typecheck, build and test
+        if: steps.check.outputs.published == 'false'
+        run: |
+          npm run check
+          npm run build
+          npm test
+
+      - name: Show what would ship
+        if: steps.check.outputs.published == 'false' && (github.event_name != 'workflow_dispatch' || !inputs.publish)
+        run: |
+          npm pack --dry-run
+          echo "::notice::verify-only. Tag-and-push, or re-run with publish=true."
+
+      - name: Publish
+        if: steps.check.outputs.published == 'false' && (github.event_name != 'workflow_dispatch' || inputs.publish)
+        run: |
+          npm publish \
+            --registry https://registry.npmjs.org \
+            --access public \
+            --provenance

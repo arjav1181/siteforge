@@ -50,5 +50,9 @@
     "tsx": "^4.20.5",
     "typescript": "^5",
     "vitest": "^3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

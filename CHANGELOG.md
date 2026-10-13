@@ -18,6 +18,11 @@ All notable changes to this project are documented here. Format follows
     tests. Never emits `bypassPermissions` / `--yolo` / `danger-full-access` —
     it grants edit access, not the machine
   - `hand_off_to_agent` MCP tool; `agent` agent skill; docs/agent.md
+- Release automation: `.github/workflows/publish.yml` publishes on a `v*` tag
+  via npm trusted publishing (OIDC) — no `NPM_TOKEN` in this repo and none
+  needed. Guards: the tag must match the `package.json` version, and the job
+  skips if that version is already on npm. Re-runnable from the Actions tab,
+  defaulting to verify-only
 - `src/ui/`: terminal capability detection (`NO_COLOR`, `FORCE_COLOR`,
   `TERM=dumb`, non-TTY), braille spinners with elapsed time, live task lists,
   wrapping panels and aligned tables

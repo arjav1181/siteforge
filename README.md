@@ -1,8 +1,10 @@
 # SiteForge
 
-[![CI](https://github.com/arjav1181/siteforge/actions/workflows/ci/badge.svg)](https://github.com/arjav1181/siteforge/actions/workflows/ci)
+[![CI](https://github.com/arjav1181/siteforge/actions/workflows/ci.yml/badge.svg)](https://github.com/arjav1181/siteforge/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@aj1181/site-forge.svg)](https://www.npmjs.com/package/@aj1181/site-forge)
+[![npm downloads](https://img.shields.io/npm/dm/@aj1181/site-forge.svg)](https://www.npmjs.com/package/@aj1181/site-forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-18%2B-5FA04E?logo=node.js&logoColor=white)](package.json)
 
 Forge **killer interactive sites** from your terminal. One CLI — video
 backgrounds, drop-in sections, FX pack, 3D scenes, demo recorder, site audit,
@@ -18,6 +20,17 @@ Requirements: **Node.js 18+**. Video/record/audit additionally need
 **ffmpeg** and a **system Chrome/Chromium** (no browser downloads — we drive
 what's installed). Generated sites need **bun or npm**. Run `siteforge`
 with no args for the interactive wizard, `siteforge doctor` to check your box.
+
+> **Latest: 1.7.0.** The changelog is in [CHANGELOG.md](CHANGELOG.md).
+
+## Contents
+
+- [The toolkit](#the-toolkit)
+- [Universal agent toolkit](#universal-agent-toolkit)
+- [For AI agents](#for-ai-agents)
+- [Why sites built this way look clean](#why-sites-built-this-way-look-clean)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## The toolkit
 
